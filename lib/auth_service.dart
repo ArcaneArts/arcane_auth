@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:serviced/serviced.dart';
 
-String get $uid => svc<AuthService>()._fbUid;
+String? get $uid => svc<AuthService>()._fbUid;
 bool get $signedIn => svc<AuthService>()._fbSignedIn;
 bool get $anonymous => svc<AuthService>()._fbAnonymous;
 
@@ -29,7 +29,7 @@ class AuthService extends StatelessService implements AsyncStartupTasked {
   bool get _fbSignedIn => FirebaseAuth.instance.currentUser != null;
   bool get _fbAnonymous =>
       FirebaseAuth.instance.currentUser?.isAnonymous ?? true;
-  String get _fbUid => FirebaseAuth.instance.currentUser?.uid ?? '';
+  String? get _fbUid => FirebaseAuth.instance.currentUser?.uid;
 
   @override
   Future<void> onStartupTask() async {
@@ -123,11 +123,20 @@ class AuthService extends StatelessService implements AsyncStartupTasked {
 
     _log("Unbinding");
     await onUnbind?.call();
-    _bound = false;
     for (var s in _subscriptions) {
       s.cancel();
     }
     _subscriptions.clear();
+    _bound = false;
+
+    if (allowAnonymous) {
+      if (allowAnonymous) {
+        await FirebaseAuth.instance.signInAnonymously();
+      }
+    } else {
+      _authState.add(this);
+    }
+
     _logSuccess("Successfully Unbound");
   }
 }
