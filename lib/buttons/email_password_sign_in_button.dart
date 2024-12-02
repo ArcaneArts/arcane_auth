@@ -22,7 +22,7 @@ class EmailPasswordSignIn extends StatelessWidget {
       required this.onPressed});
 
   @override
-  Widget build(BuildContext context) => OAuthSignInButton(
+  Widget build(BuildContext context) => CredentialSignInButton(
         label: label,
         icon: icon,
         onPressed: onPressed,
