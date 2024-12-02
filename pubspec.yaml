@@ -1,0 +1,22 @@
+name: arcane_auth
+description: "A new Flutter project."
+version: 0.0.1
+homepage:
+environment:
+  sdk: ^3.5.2
+  flutter: ">=1.17.0"
+dependencies:
+  fast_log: ^1.0.7
+  firebase_auth: ^5.3.3
+  flutter:
+    sdk: flutter
+  hive_flutter: ^1.1.0
+  rxdart: ^0.28.0
+  serviced: ^1.0.1
+  toxic: ^1.3.2
+  toxic_flutter: ^1.1.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+flutter:
