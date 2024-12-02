@@ -1,18 +1,7 @@
 library arcane_auth;
 
-import 'package:arcane_auth/auth_service.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:serviced/serviced.dart';
-
-export 'package:arcane_auth/auth_service.dart';
-
-Future<void> onBind(UserMeta user) async {}
-
-Future<void> onUnbind() async {}
-
-Future<void> main() async {
-  services().register(() => AuthService(onBind: onBind, onUnbind: onUnbind),
-      lazy: false);
-  await services().waitForStartup();
-  runApp(Container());
-}
+export 'package:arcane_auth/buttons/apple_sign_in_button.dart';
+export 'package:arcane_auth/buttons/email_password_sign_in_button.dart';
+export 'package:arcane_auth/buttons/google_sign_in_button.dart';
+export 'package:arcane_auth/buttons/oauth_sign_in_button.dart';
+export 'package:arcane_auth/service/auth_service.dart';

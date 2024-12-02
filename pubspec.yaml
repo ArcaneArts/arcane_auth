@@ -6,7 +6,7 @@ environment:
   sdk: ^3.5.2
   flutter: ">=1.17.0"
 dependencies:
-  arcane: ^3.4.1
+  arcane: ^3.4.2
   fast_log: ^1.0.7
   firebase_auth: ^5.3.3
   flutter:
