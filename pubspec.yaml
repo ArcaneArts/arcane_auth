@@ -1,12 +1,12 @@
 name: arcane_auth
 description: "Authentication Service Provider & UI for Authentication in Arcane Style"
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/ArcaneArts/arcane_auth
 environment:
   sdk: ^3.5.2
   flutter: ">=1.17.0"
 dependencies:
-  arcane: ^3.4.2
+  arcane: ^3.4.2+1
   common_svgs: ^1.0.2
   crypto: ^3.0.6
   desktop_webview_auth: ^0.0.15
