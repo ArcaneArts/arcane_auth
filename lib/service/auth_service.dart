@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:fast_log/fast_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:serviced/serviced.dart';
@@ -59,7 +60,7 @@ class AuthService extends StatelessService implements AsyncStartupTasked {
   Box get authBox => _authBox;
   bool get _fbSignedIn => FirebaseAuth.instance.currentUser != null;
   bool get _fbAnonymous =>
-      FirebaseAuth.instance.currentUser?.isAnonymous ?? true;
+      FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
   String? get _fbUid => FirebaseAuth.instance.currentUser?.uid;
 
   Future<void> _initBox() async {
@@ -139,7 +140,14 @@ class AuthService extends StatelessService implements AsyncStartupTasked {
 
   Future<void> signOut() async {
     _log("Signing Out");
-    await FirebaseAuth.instance.signOut();
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (e, es) {
+      error("Failed to sign out of Firebase $e $es");
+    }
+    try {
+      await GoogleSignIn.standard().signOut();
+    } catch (e) {}
     _logSuccess("Successfully Signed Out");
   }
 
@@ -303,7 +311,7 @@ class _AuthState {
 
   _AuthState.of(User? user)
       : uid = user?.uid,
-        anonymous = user?.isAnonymous ?? true;
+        anonymous = user?.isAnonymous ?? false;
 
   bool get isSignedIn => uid != null;
 
