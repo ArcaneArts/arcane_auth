@@ -25,9 +25,7 @@ class GoogleSignInButton extends StatelessWidget {
   final String? label;
 
   const GoogleSignInButton(
-      {super.key,
-      this.icon = const GoogleLogo(),
-      this.label = "Sign in with Google"});
+      {super.key, this.icon = const GoogleLogo(), this.label = "Google"});
 
   @override
   Widget build(BuildContext context) => CredentialSignInButton(
@@ -130,11 +128,11 @@ class GoogleSignInButton extends StatelessWidget {
 class GoogleLogo extends StatelessWidget {
   final double size;
 
-  const GoogleLogo({super.key, this.size = 24});
+  const GoogleLogo({super.key, this.size = 14});
 
   @override
   Widget build(BuildContext context) => SvgPicture.string(svgGoogle,
-      width: 18,
-      height: 18,
+      width: size,
+      height: size,
       color: Theme.of(context).colorScheme.mutedForeground);
 }

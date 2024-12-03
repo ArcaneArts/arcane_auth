@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:arcane/arcane.dart';
 import 'package:crypto/crypto.dart';
 import 'package:fast_log/fast_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:serviced/serviced.dart';
 
 String? get $uid => svc<AuthService>()._fbUid;
@@ -106,6 +106,19 @@ class AuthService extends StatelessService implements AsyncStartupTasked {
     if (allowAnonymous) {
       await FirebaseAuth.instance.signInAnonymously();
     }
+
+    PrecisionStopwatch p = PrecisionStopwatch.start();
+
+    double _dl = 1;
+    while (p.getMilliseconds() < 1000) {
+      await Future.delayed(Duration(milliseconds: (_dl *= 1.1).round()));
+      _dl += 80;
+
+      if ($signedIn) {
+        success("Caught Sign in after ${p.getMilliseconds()}ms");
+        break;
+      }
+    }
   }
 
   void _log(String message) => verbose("[ArcaneAuth]: $message");
@@ -180,7 +193,7 @@ class AuthService extends StatelessService implements AsyncStartupTasked {
     if ($signedIn && autoLink) {
       await linkPopup(provider);
       _logSuccess(
-          "Successfully Signed In with Popup <${provider.providerId}> as ${$uid}");
+          "Successfully Signed In & Linked with Popup <${provider.providerId}> with ${$uid}");
       await bind($uid!);
       return;
     }
@@ -192,12 +205,41 @@ class AuthService extends StatelessService implements AsyncStartupTasked {
         "Successfully Signed In with Popup <${provider.providerId}> as ${$uid}");
   }
 
+  Future<void> signInWithEmailPassword(
+      {required String email, required String password}) async {
+    _log("Signing In with Email <$email>");
+
+    await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password)
+        .then(processUserCredential);
+    _logSuccess("Successfully Signed In with Email <$email> as ${$uid}");
+  }
+
+  Future<void> registerWithEmailPassword(
+      {required String email, required String password}) async {
+    _log("Signing In with Email <$email>");
+
+    if ($signedIn && autoLink) {
+      await linkCredential(
+          EmailAuthProvider.credential(email: email, password: password));
+      _logSuccess(
+          "Successfully Registered & Linked with Email <$email> with ${$uid}");
+      await bind($uid!);
+      return;
+    }
+
+    await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: password)
+        .then(processUserCredential);
+    _logSuccess("Successfully Registered In with Email <$email> as ${$uid}");
+  }
+
   Future<void> signIn(AuthCredential credential) async {
     _log("Signing In with Credential <${credential.providerId}>");
     if ($signedIn && autoLink) {
       await linkCredential(credential);
       _logSuccess(
-          "Successfully Signed In with Credential <${credential.providerId}> as ${$uid}");
+          "Successfully Signed In & Linked with Credential <${credential.providerId}> with ${$uid}");
       await bind($uid!);
       return;
     }
@@ -241,11 +283,7 @@ class AuthService extends StatelessService implements AsyncStartupTasked {
     _bound = false;
 
     if (allowAnonymous) {
-      if (allowAnonymous) {
-        await FirebaseAuth.instance
-            .signInAnonymously()
-            .then(processUserCredential);
-      }
+      FirebaseAuth.instance.signInAnonymously().then(processUserCredential);
     } else {
       _authState.add(this);
     }

@@ -24,9 +24,7 @@ class AppleSignInButton extends StatelessWidget {
   final String? label;
 
   const AppleSignInButton(
-      {super.key,
-      this.icon = const AppleLogo(),
-      this.label = "Sign in with Apple"});
+      {super.key, this.icon = const AppleLogo(), this.label = "Apple"});
 
   @override
   Widget build(BuildContext context) => CredentialSignInButton(
@@ -75,11 +73,11 @@ class AppleSignInButton extends StatelessWidget {
 class AppleLogo extends StatelessWidget {
   final double size;
 
-  const AppleLogo({super.key, this.size = 18});
+  const AppleLogo({super.key, this.size = 14});
 
   @override
   Widget build(BuildContext context) => SvgPicture.string(svgApple,
-      width: 18,
-      height: 18,
+      width: size,
+      height: size,
       color: Theme.of(context).colorScheme.mutedForeground);
 }

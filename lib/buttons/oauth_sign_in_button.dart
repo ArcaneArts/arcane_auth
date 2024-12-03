@@ -27,7 +27,7 @@ class CredentialSignInButton extends StatelessWidget {
     }
 
     return OutlineButton(
-      density: ButtonDensity.comfortable,
+      density: ButtonDensity.normal,
       onPressed: onPressed,
       leading: le,
       child: ch,
