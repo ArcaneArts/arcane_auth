@@ -7,13 +7,18 @@ environment:
   flutter: ">=1.17.0"
 dependencies:
   arcane: ^3.4.2
+  crypto: ^3.0.6
+  desktop_webview_auth: ^0.0.15
   fast_log: ^1.0.7
   firebase_auth: ^5.3.3
   flutter:
     sdk: flutter
+  google_sign_in: ^6.2.2
   hive_flutter: ^1.1.0
   rxdart: ^0.28.0
   serviced: ^1.0.1
+  sign_in_with_apple: ^6.1.3
   toxic: ^1.3.2
   toxic_flutter: ^1.1.0
+  universal_io: ^2.2.2
 flutter:
