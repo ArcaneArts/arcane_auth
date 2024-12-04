@@ -36,7 +36,8 @@ void initArcaneAuth(
       lazy: false);
 }
 
-class AuthService extends StatelessService implements AsyncStartupTasked, ArcaneAuthProvider {
+class AuthService extends StatelessService
+    implements AsyncStartupTasked, ArcaneAuthProvider {
   final bool allowAnonymous;
   final bool autoLink;
   final Future<void> Function(UserMeta user)? onBind;
@@ -68,7 +69,14 @@ class AuthService extends StatelessService implements AsyncStartupTasked, Arcane
   String? get _fbUid => FirebaseAuth.instance.currentUser?.uid;
 
   Future<void> _initBox() async {
-    await Hive.initFlutter(FirebaseAuth.instance.app.name);
+    if (!kIsWeb) {
+      try {
+        await Hive.initFlutter(FirebaseAuth.instance.app.options.apiKey);
+      } catch (e, es) {
+        _logError("Failed to initialize Hive: $e $es");
+      }
+    }
+
     _dataBox = await Hive.openBox("arcane_auth_data");
     _authBox = await Hive.openBox("arcane_auth_keys",
         encryptionCipher: HiveAesCipher(await _genBoxKey().toList()));
@@ -155,7 +163,9 @@ class AuthService extends StatelessService implements AsyncStartupTasked, Arcane
     return s;
   }
 
-  Future<void> signOut() async {
+  Future<void> signOut(BuildContext context) async {
+    Navigator.of(context).popUntil((route) => route.isFirst);
+
     _log("Signing Out");
     try {
       await FirebaseAuth.instance.signOut();
@@ -296,7 +306,8 @@ class AuthService extends StatelessService implements AsyncStartupTasked, Arcane
   }
 
   @override
-  Future<void> signInWithProvider(ArcaneSignInProviderType type) => type.signIn();
+  Future<void> signInWithProvider(ArcaneSignInProviderType type) =>
+      type.signIn();
 }
 
 class UserMeta {
@@ -389,13 +400,13 @@ extension XArcaneSignInProviderType on ArcaneSignInProviderType {
   }
 }
 
-class ArcaneAppleSignInProvider{
+class ArcaneAppleSignInProvider {
   static Future<void> signInWithApple() async {
     late UserCredential c;
     String rawNonce = _generateNonce();
     String nonce = _sha256ofString(rawNonce);
     AuthorizationCredentialAppleID appleCredential =
-    await SignInWithApple.getAppleIDCredential(
+        await SignInWithApple.getAppleIDCredential(
       scopes: [
         AppleIDAuthorizationScopes.email,
         AppleIDAuthorizationScopes.fullName,
@@ -469,14 +480,14 @@ class ArcaneGoogleSignInProvider {
       try {
         AuthResult ar = await _openGoogleSignInPopupWindows().bang;
         OAuthCredential at =
-        GoogleAuthProvider.credential(accessToken: ar.accessToken);
+            GoogleAuthProvider.credential(accessToken: ar.accessToken);
         await svc<AuthService>()
             .signIn(AuthCredential(
-          providerId: at.providerId,
-          signInMethod: at.signInMethod,
-          accessToken: at.accessToken,
-          token: at.token,
-        ))
+              providerId: at.providerId,
+              signInMethod: at.signInMethod,
+              accessToken: at.accessToken,
+              token: at.token,
+            ))
             .thenRun((_) => _saveAuthToken(ar));
       } catch (e, es) {
         error("Failed to sign in with Google!");
@@ -507,10 +518,10 @@ class ArcaneGoogleSignInProvider {
       Future.value(svc<AuthService>().authBox.get("at") != null);
 
   static Future<AuthResult> _loadAuthToken() => Future.value(AuthResult(
-    accessToken: svc<AuthService>().authBox.get("at"),
-    idToken: svc<AuthService>().authBox.get("it"),
-    tokenSecret: svc<AuthService>().authBox.get("ts"),
-  ));
+        accessToken: svc<AuthService>().authBox.get("at"),
+        idToken: svc<AuthService>().authBox.get("it"),
+        tokenSecret: svc<AuthService>().authBox.get("ts"),
+      ));
 
   static Future<AuthResult?> _openGoogleSignInPopupWindows() =>
       DesktopWebviewAuth.signIn(GoogleSignInArgs(
