@@ -6,15 +6,14 @@ environment:
   sdk: ^3.5.2
   flutter: ">=1.17.0"
 dependencies:
-  arcane: 
-    path: ../arcane
+  arcane: ^3.5.0
   common_svgs: ^1.0.2
   crypto: ^3.0.6
   desktop_webview_auth: ^0.0.15
   desktop_webview_window: ^0.2.3
   email_validator: ^3.0.0
   fast_log: ^1.0.7
-  firebase_auth: ^5.3.3
+  firebase_auth: ^5.3.4
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.16
