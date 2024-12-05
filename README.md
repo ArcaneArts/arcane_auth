@@ -2,7 +2,51 @@
 
 A Flutter package for authenticating with firebase_auth providers using the arcane package for UI.
 
+|             | Web           | iOS                | Android        | MacOS              | Windows       |
+|-------------|---------------|--------------------|----------------|--------------------|---------------|
+| Anonymous   | firebase_auth | firebase_auth      | firebase_auth  | firebase_auth      | firebase_auth |
+| Email       | firebase_auth | firebase_auth      | firebase_auth  | firebase_auth      | firebase_auth |
+| Email Link  | NYI           | NYI                | NYI            | NYI                | NYI           |
+| Phone       | NYI           | NYI                | NYI            | NYI                | NYI           |
+| Google      | firebase_auth | google_sign_in     | google_sign_in | google_sign_in     | arcane_auth   |
+| Apple       | NYI           | sign_in_with_apple | NYI            | sign_in_with_apple | NYI           |
+| Facebook    | firebase_auth | arcane_auth        | arcane_auth    | arcane_auth        | arcane_auth   |
+| Microsoft   | firebase_auth | arcane_auth        | arcane_auth    | arcane_auth        | arcane_auth   |
+| Github      | NYI           | NYI                | NYI            | NYI                | NYI           |
+| Yahoo       | NYI           | NYI                | NYI            | NYI                | NYI           |
+| X           | NYI           | NYI                | NYI            | NYI                | NYI           |
+| Play Games  | NYI           | NYI                | NYI            | NYI                | NYI           |
+| Game Center | NYI           | NYI                | NYI            | NYI                | NYI           |
+| OpenID      | NYI           | NYI                | NYI            | NYI                | NYI           |
+| SAML        | NYI           | NYI                | NYI            | NYI                | NYI           |
+
 ## Setup
+
+### Apple
+Currently only IOS and MacOS are easily supported for Apple Sign In which do not require any setup. There is a way to get it to work on windows / android / web, see [here](https://pub.dev/packages/social_sign_in#sign-in-with-apple)
+
+### Google
+1. Head to [https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+2. Under `OAuth 2.0 Client IDs` click on Web client (auto created by Google Service)
+3. Set `Authorized redirect URIs` url to `https://[YOUR FIREBASE PROJECT ID].firebaseapp.com/__/auth/handler`
+4. Under `Additional information` you will find your `Client ID` which is needed for the provider
+5. Under `Client Secrets` you will find your `Client Secret` which is needed for the provider
+
+### Microsoft
+1. Login Azure portal and click Azure Active Directory, and then, in the navigation panel, click App registrations to register an application.
+2. Enter your Application Name and pick Accounts in any organizational directory (Any Azure AD directory - Multitenant) and personal Microsoft accounts(eg. Skype, Xbox) to allow for Sign-in from both organization and public accounts.
+3. Choose Web as the Redirect URI and enter the Redirect URI in Firebase Console under Authentication > Sign-In Method > Enable Microsoft provider.
+4. Add new client secret in Certificates and secrets. & copy the VALUE not the secret id. That is the secret to use
+5. Specify your app's Client ID, Client Secret you just created in the project.
+6. Plug these values into the microsoft provider on both firebase and a sign in config in main
+
+### Facebook
+1. Start the app creation process in Meta for Developers.
+2. Choose a use case which determines permissions, products and APIs are available to your app.
+3. Set your app name and email.
+4. Specify your app's Client ID, Client Secret you just created in the project .
+
+### Aut Setup
 
 First add arcane auth if you haven't `flutter pub add arcane_auth`
 
@@ -16,14 +60,14 @@ Future<void> main() async {
 
   // init arcane auth
   initArcaneAuth(
-    
-      // If you intend to use google sign in on windows, you must provide the client id
-      googleClientID:
-      "CLIENTID.apps.googleusercontent.com",
-      
-      // If you intend to use google sign in on windows, you must provide the redirect uri
-      googleRedirectURI:
-      "https://YOURAPP.firebaseapp.com/__/auth/handler",
+      signInConfigs: [
+        // Add the sign in providers you would like to use
+        GoogleSignInConfig(
+            clientId:
+            "CLIENT-ID.apps.googleusercontent.com",
+            clientSecret: "CLIENT-SECRET",
+            redirectUrl: "https://YOURAPP.firebaseapp.com/__/auth/handler")
+      ],
       
       // This is called when the user is signed in, you can use this to 
       // subscribe to user data or initialize stuff for that user

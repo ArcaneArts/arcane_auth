@@ -3,36 +3,34 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:arcane/arcane.dart';
+import 'package:arcane_auth/arcane_auth.dart';
 import 'package:crypto/crypto.dart';
-import 'package:desktop_webview_auth/desktop_webview_auth.dart';
-import 'package:desktop_webview_auth/google.dart';
 import 'package:fast_log/fast_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in/google_sign_in.dart' as gsi;
 import 'package:hive_flutter/adapters.dart';
 import 'package:serviced/serviced.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 String? get $uid => svc<AuthService>()._fbUid;
 bool get $signedIn => svc<AuthService>()._fbSignedIn;
 bool get $anonymous => svc<AuthService>()._fbAnonymous;
 
-void initArcaneAuth(
-    {bool allowAnonymous = false,
-    Future<void> Function(UserMeta user)? onBind,
-    Future<void> Function()? onUnbind,
-    bool autoLink = true,
-    String? googleClientID,
-    String? googleRedirectURI}) {
+void initArcaneAuth({
+  bool allowAnonymous = false,
+  Future<void> Function(UserMeta user)? onBind,
+  Future<void> Function()? onUnbind,
+  bool autoLink = true,
+  List<SocialSignInSiteConfig> signInConfigs = const [],
+}) {
   services().register<AuthService>(
       () => AuthService(
-          onBind: onBind,
-          onUnbind: onUnbind,
-          allowAnonymous: allowAnonymous,
-          autoLink: autoLink,
-          googleClientID: googleClientID,
-          googleRedirectURI: googleRedirectURI),
+            signInConfigs: signInConfigs,
+            onBind: onBind,
+            onUnbind: onUnbind,
+            allowAnonymous: allowAnonymous,
+            autoLink: autoLink,
+          ),
       lazy: false);
 }
 
@@ -44,8 +42,7 @@ class AuthService extends StatelessService
   final Future<void> Function()? onUnbind;
   final List<StreamSubscription> _subscriptions = [];
   final List<ArcaneAuthUserNameHint> _nameHints = [];
-  final String? googleClientID;
-  final String? googleRedirectURI;
+  final List<SocialSignInSiteConfig> signInConfigs;
   late final Box _authBox;
   late final Box _dataBox;
   late final BehaviorSubject<AuthService> _authState;
@@ -56,8 +53,7 @@ class AuthService extends StatelessService
       this.onBind,
       this.onUnbind,
       this.autoLink = true,
-      this.googleClientID,
-      this.googleRedirectURI}) {
+      this.signInConfigs = const []}) {
     _authState = BehaviorSubject.seeded(this);
   }
 
@@ -67,6 +63,12 @@ class AuthService extends StatelessService
   bool get _fbAnonymous =>
       FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
   String? get _fbUid => FirebaseAuth.instance.currentUser?.uid;
+
+  T? getSignInConfig<T extends SocialSignInSiteConfig>() =>
+      signInConfigs.whereType<T>().firstOrNull;
+
+  bool hasSignInConfig<T extends SocialSignInSiteConfig>() =>
+      signInConfigs.any((e) => e is T);
 
   Future<void> _initBox() async {
     if (!kIsWeb) {
@@ -173,7 +175,7 @@ class AuthService extends StatelessService
       error("Failed to sign out of Firebase $e $es");
     }
     try {
-      await GoogleSignIn.standard().signOut();
+      await gsi.GoogleSignIn.standard().signOut();
     } catch (e) {}
     _logSuccess("Successfully Signed Out");
   }
@@ -306,57 +308,9 @@ class AuthService extends StatelessService
   }
 
   @override
-  Future<void> signInWithProvider(ArcaneSignInProviderType type) =>
-      type.signIn();
-}
-
-class UserMeta {
-  final User user;
-  final List<ArcaneAuthUserNameHint> hints;
-
-  const UserMeta(this.user, this.hints);
-
-  String? get displayName => extract<String>((i) => i.displayName);
-  String? get firstName =>
-      hints.map((i) => i.firstName).whereType<String>().firstOrNull ??
-      extract<String>((i) => (i.displayName?.contains(" ") ?? false)
-          ? i.displayName!.split(" ").first
-          : i.displayName);
-  String? get lastName =>
-      hints.map((i) => i.lastName).whereType<String>().firstOrNull ??
-      extract<String>((i) => (i.displayName?.contains(" ") ?? false)
-          ? i.displayName!.split(" ").sublist(1).join(" ")
-          : i.displayName);
-  String? get email => extract<String>((i) => i.email);
-  String? get phoneNumber => extract<String>((i) => i.phoneNumber);
-
-  T? extract<T>(T? Function(UserInfo) extractor) =>
-      extractor(UserInfo.fromJson({
-        "uid": user.uid,
-        "email": user.email,
-        "displayName": user.displayName,
-        "photoUrl": user.photoURL,
-        "phoneNumber": user.phoneNumber,
-        "isAnonymous": user.isAnonymous,
-        "isEmailVerified": user.emailVerified,
-        "providerId": user.providerData.first.providerId,
-        "tenantId": user.tenantId,
-        "refreshToken": user.refreshToken,
-        "creationTimestamp": user.metadata.creationTime?.millisecondsSinceEpoch,
-        "lastSignInTimestamp":
-            user.metadata.lastSignInTime?.millisecondsSinceEpoch,
-      })) ??
-      user.providerData.map(extractor).whereType<T>().firstOrNull;
-}
-
-class ArcaneAuthUserNameHint {
-  final String? firstName;
-  final String? lastName;
-
-  ArcaneAuthUserNameHint({
-    this.firstName,
-    this.lastName,
-  });
+  Future<void> signInWithProvider(
+          BuildContext context, ArcaneSignInProviderType type) =>
+      type.signIn(context);
 }
 
 class _AuthState {
@@ -390,142 +344,35 @@ class _AuthState {
 }
 
 extension XArcaneSignInProviderType on ArcaneSignInProviderType {
-  Future<void> signIn() async {
-    switch (this) {
-      case ArcaneSignInProviderType.google:
-        return ArcaneGoogleSignInProvider.signInWithGoogle();
-      case ArcaneSignInProviderType.apple:
-        return ArcaneAppleSignInProvider.signInWithApple();
-    }
-  }
+  Future<void> signIn(BuildContext context) => switch (this) {
+        ArcaneSignInProviderType.apple =>
+          ArcaneAppleSignInProvider.signInWithApple(context),
+        ArcaneSignInProviderType.google =>
+          ArcaneGoogleSignInProvider.signInWithGoogle(context),
+        ArcaneSignInProviderType.facebook =>
+          ArcaneFacebookSignInProvider.signInWithFacebook(context),
+        ArcaneSignInProviderType.microsoft =>
+          ArcaneMicrosoftSignInProvider.signInWithMicrosoft(context),
+      };
 }
 
-class ArcaneAppleSignInProvider {
-  static Future<void> signInWithApple() async {
-    late UserCredential c;
-    String rawNonce = _generateNonce();
-    String nonce = _sha256ofString(rawNonce);
-    AuthorizationCredentialAppleID appleCredential =
-        await SignInWithApple.getAppleIDCredential(
-      scopes: [
-        AppleIDAuthorizationScopes.email,
-        AppleIDAuthorizationScopes.fullName,
-      ],
-      nonce: nonce,
-    );
-    svc<AuthService>().addUsernameHint(ArcaneAuthUserNameHint(
-        firstName: appleCredential.givenName,
-        lastName: appleCredential.familyName));
-
-    await svc<AuthService>().signIn(OAuthProvider("apple.com").credential(
-      idToken: appleCredential.identityToken,
-      rawNonce: rawNonce,
-    ));
-  }
-
-  static String _generateNonce([int length = 32]) {
-    const charset =
-        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
-    final random = Random.secure();
-    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
-        .join();
-  }
-
-  static String _sha256ofString(String input) {
-    final bytes = utf8.encode(input);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
-}
-
-class ArcaneGoogleSignInProvider {
-  static Future<void> signInWithGoogle() async {
-    if (kIsWeb) {
-      await svc<AuthService>().signInWithPopup(GoogleAuthProvider());
-    } else if (Platform.isWindows) {
-      await _signInWithGoogleWindows(retry: true);
-    } else {
-      GoogleSignInAccount? googleUser = await GoogleSignIn.standard().signIn();
-      GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-      await svc<AuthService>().signIn(GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      ));
-    }
-  }
-
-  static Future<void> _signInWithGoogleWindows({bool retry = true}) async {
-    if (await _hasAuthToken()) {
-      try {
-        OAuthCredential at = GoogleAuthProvider.credential(
-            accessToken: (await _loadAuthToken()).accessToken);
-        await svc<AuthService>().signIn(AuthCredential(
-          providerId: at.providerId,
-          signInMethod: at.signInMethod,
-          accessToken: at.accessToken,
-          token: at.token,
-        ));
-      } catch (e, es) {
-        error("Looks like our saved credentials are invalid!");
-        warn(e);
-        warn(es);
-        await _clearAuthToken();
-        if (retry) {
-          return _signInWithGoogleWindows();
-        } else {
-          rethrow;
-        }
-      }
-    } else {
-      try {
-        AuthResult ar = await _openGoogleSignInPopupWindows().bang;
-        OAuthCredential at =
-            GoogleAuthProvider.credential(accessToken: ar.accessToken);
-        await svc<AuthService>()
-            .signIn(AuthCredential(
-              providerId: at.providerId,
-              signInMethod: at.signInMethod,
-              accessToken: at.accessToken,
-              token: at.token,
-            ))
-            .thenRun((_) => _saveAuthToken(ar));
-      } catch (e, es) {
-        error("Failed to sign in with Google!");
-        error(e);
-        error(es);
-        rethrow;
-      }
-    }
-  }
-
-  static Future<void> _saveAuthToken(AuthResult r) async {
-    Box box = svc<AuthService>().authBox;
-    await box.put("at", r.accessToken);
-    await box.put("it", r.idToken);
-    await box.put("ts", r.tokenSecret);
-    verbose("Saved Auth Token");
-  }
-
-  static Future<void> _clearAuthToken() async {
-    Box box = svc<AuthService>().authBox;
-    await box.delete("at");
-    await box.delete("it");
-    await box.delete("ts");
-    verbose("Cleared Auth Token");
-  }
-
-  static Future<bool> _hasAuthToken() =>
-      Future.value(svc<AuthService>().authBox.get("at") != null);
-
-  static Future<AuthResult> _loadAuthToken() => Future.value(AuthResult(
-        accessToken: svc<AuthService>().authBox.get("at"),
-        idToken: svc<AuthService>().authBox.get("it"),
-        tokenSecret: svc<AuthService>().authBox.get("ts"),
-      ));
-
-  static Future<AuthResult?> _openGoogleSignInPopupWindows() =>
-      DesktopWebviewAuth.signIn(GoogleSignInArgs(
-          clientId: svc<AuthService>().googleClientID!,
-          redirectUri: svc<AuthService>().googleRedirectURI!,
-          scope: 'email'));
+extension XAuthCredentialBind on SocialSignInResultInterface {
+  AuthCredential get credential => switch (this) {
+        (GoogleSignInResult r) => GoogleAuthProvider.credential(
+            accessToken: r.accessToken,
+            idToken: r.idToken,
+          ),
+        (AppleSignInResult r) => AppleAuthProvider.credentialWithIDToken(
+            r.idToken,
+            r.nonce,
+            AppleFullPersonName(
+                // TODO UNHANDLED
+                )),
+        (FacebookSignInResult r) =>
+          FacebookAuthProvider.credential(r.accessToken),
+        (MicrosoftSignInResult r) =>
+          MicrosoftAuthProvider.credential(r.accessToken),
+        _ => throw UnimplementedError(
+            "Unknown/Unhandled SocialSignInResultInterface ${runtimeType}")
+      };
 }
