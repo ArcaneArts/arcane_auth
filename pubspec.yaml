@@ -4,7 +4,7 @@ version: 1.2.0
 repository: https://github.com/ArcaneArts/arcane_auth
 environment:
   sdk: ^3.5.2
-  flutter: ">=1.17.0"
+  flutter: ">=1.20.0"
 dependencies:
   arcane: ^3.5.0
   common_svgs: ^1.0.2
