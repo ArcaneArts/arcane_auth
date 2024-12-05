@@ -2,6 +2,11 @@ library arcane_auth;
 
 export 'package:arcane_auth/screen/authenticator.dart';
 export 'package:arcane_auth/service/auth_service.dart';
+export 'package:arcane_auth/service/user_meta.dart';
+export 'package:arcane_auth/service/provider/google.dart';
+export 'package:arcane_auth/service/provider/facebook.dart';
+export 'package:arcane_auth/service/provider/microsoft.dart';
+export 'package:arcane_auth/service/provider/apple.dart';
 
 export 'package:arcane_auth/social/interface/social_sign_in_error.dart';
 export 'package:arcane_auth/social/interface/social_sign_in_platform_interface.dart';
