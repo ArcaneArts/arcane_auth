@@ -3,36 +3,37 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:arcane/arcane.dart';
+import 'package:arcane_auth/arcane_auth.dart';
 import 'package:crypto/crypto.dart';
 import 'package:desktop_webview_auth/desktop_webview_auth.dart';
 import 'package:desktop_webview_auth/google.dart';
 import 'package:fast_log/fast_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in/google_sign_in.dart' as gsi;
 import 'package:hive_flutter/adapters.dart';
 import 'package:serviced/serviced.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart' as asi;
 
 String? get $uid => svc<AuthService>()._fbUid;
 bool get $signedIn => svc<AuthService>()._fbSignedIn;
 bool get $anonymous => svc<AuthService>()._fbAnonymous;
 
-void initArcaneAuth(
-    {bool allowAnonymous = false,
-    Future<void> Function(UserMeta user)? onBind,
-    Future<void> Function()? onUnbind,
-    bool autoLink = true,
-    String? googleClientID,
-    String? googleRedirectURI}) {
+void initArcaneAuth({
+  bool allowAnonymous = false,
+  Future<void> Function(UserMeta user)? onBind,
+  Future<void> Function()? onUnbind,
+  bool autoLink = true,
+  List<SocialSignInSiteConfig> signInConfigs = const [],
+}) {
   services().register<AuthService>(
       () => AuthService(
-          onBind: onBind,
-          onUnbind: onUnbind,
-          allowAnonymous: allowAnonymous,
-          autoLink: autoLink,
-          googleClientID: googleClientID,
-          googleRedirectURI: googleRedirectURI),
+            signInConfigs: signInConfigs,
+            onBind: onBind,
+            onUnbind: onUnbind,
+            allowAnonymous: allowAnonymous,
+            autoLink: autoLink,
+          ),
       lazy: false);
 }
 
@@ -44,8 +45,7 @@ class AuthService extends StatelessService
   final Future<void> Function()? onUnbind;
   final List<StreamSubscription> _subscriptions = [];
   final List<ArcaneAuthUserNameHint> _nameHints = [];
-  final String? googleClientID;
-  final String? googleRedirectURI;
+  final List<SocialSignInSiteConfig> signInConfigs;
   late final Box _authBox;
   late final Box _dataBox;
   late final BehaviorSubject<AuthService> _authState;
@@ -56,8 +56,7 @@ class AuthService extends StatelessService
       this.onBind,
       this.onUnbind,
       this.autoLink = true,
-      this.googleClientID,
-      this.googleRedirectURI}) {
+      this.signInConfigs = const []}) {
     _authState = BehaviorSubject.seeded(this);
   }
 
@@ -67,6 +66,12 @@ class AuthService extends StatelessService
   bool get _fbAnonymous =>
       FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
   String? get _fbUid => FirebaseAuth.instance.currentUser?.uid;
+
+  T? getSignInConfig<T extends SocialSignInSiteConfig>() =>
+      signInConfigs.whereType<T>().firstOrNull;
+
+  bool hasSignInConfig<T extends SocialSignInSiteConfig>() =>
+      signInConfigs.any((e) => e is T);
 
   Future<void> _initBox() async {
     if (!kIsWeb) {
@@ -173,7 +178,7 @@ class AuthService extends StatelessService
       error("Failed to sign out of Firebase $e $es");
     }
     try {
-      await GoogleSignIn.standard().signOut();
+      await gsi.GoogleSignIn.standard().signOut();
     } catch (e) {}
     _logSuccess("Successfully Signed Out");
   }
@@ -405,11 +410,11 @@ class ArcaneAppleSignInProvider {
     late UserCredential c;
     String rawNonce = _generateNonce();
     String nonce = _sha256ofString(rawNonce);
-    AuthorizationCredentialAppleID appleCredential =
-        await SignInWithApple.getAppleIDCredential(
+    asi.AuthorizationCredentialAppleID appleCredential =
+        await asi.SignInWithApple.getAppleIDCredential(
       scopes: [
-        AppleIDAuthorizationScopes.email,
-        AppleIDAuthorizationScopes.fullName,
+        asi.AppleIDAuthorizationScopes.email,
+        asi.AppleIDAuthorizationScopes.fullName,
       ],
       nonce: nonce,
     );
@@ -445,8 +450,10 @@ class ArcaneGoogleSignInProvider {
     } else if (Platform.isWindows) {
       await _signInWithGoogleWindows(retry: true);
     } else {
-      GoogleSignInAccount? googleUser = await GoogleSignIn.standard().signIn();
-      GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+      gsi.GoogleSignInAccount? googleUser =
+          await gsi.GoogleSignIn.standard().signIn();
+      gsi.GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
       await svc<AuthService>().signIn(GoogleAuthProvider.credential(
         accessToken: googleAuth?.accessToken,
         idToken: googleAuth?.idToken,
@@ -525,7 +532,11 @@ class ArcaneGoogleSignInProvider {
 
   static Future<AuthResult?> _openGoogleSignInPopupWindows() =>
       DesktopWebviewAuth.signIn(GoogleSignInArgs(
-          clientId: svc<AuthService>().googleClientID!,
-          redirectUri: svc<AuthService>().googleRedirectURI!,
+          clientId: svc<AuthService>()
+              .getSignInConfig<GoogleSignInConfig>()!
+              .clientId,
+          redirectUri: svc<AuthService>()
+              .getSignInConfig<GoogleSignInConfig>()!
+              .redirectUrl,
           scope: 'email'));
 }
