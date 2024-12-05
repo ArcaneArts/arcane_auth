@@ -107,9 +107,33 @@ class AuthService extends StatelessService
     }
   }
 
+  Future<void> waitForFirebaseInit() async {
+    int tick = 1;
+    bool initialized = false;
+    print("Wait for");
+    if (!initialized) {
+      try {
+        FirebaseAuth.instance.app;
+        initialized = true;
+      } catch (e, es) {
+        print(e);
+      }
+      warn("Waiting for Firebase to Initialize");
+      await Future.delayed(Duration(milliseconds: min(1000, 50 * (tick++))));
+
+      if (tick > 60) {
+        error("Failed to initialize Firebase");
+        throw "Failed to initialize Firebase";
+      }
+    }
+
+    print("Waited");
+  }
+
   @override
   Future<void> onStartupTask() async {
     await _initBox();
+    await waitForFirebaseInit();
     FirebaseAuth.instance
         .authStateChanges()
         .map(_AuthState.of)
