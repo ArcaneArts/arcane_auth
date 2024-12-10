@@ -2,13 +2,14 @@ import 'package:arcane/arcane.dart';
 import 'package:arcane_auth/arcane_auth.dart';
 import 'package:serviced/serviced.dart';
 
-Widget _defaultLoginBuilder(BuildContext context, List<Widget> buttons) =>
-    LoginScreen(loginButtons: buttons);
+Widget _defaultLoginBuilder(BuildContext context, List<AuthMethod> methods) =>
+    LoginScreen(authMethods: methods);
 
 class AuthenticatedArcaneApp extends StatelessWidget {
   final GlobalKey<NavigatorState>? navigatorKey;
   final AdaptiveScaling? scaling;
   final Widget? home;
+  final List<AuthMethod> authMethods;
   final Map<String, WidgetBuilder>? routes;
   final String? initialRoute;
   final RouteFactory? onGenerateRoute;
@@ -40,14 +41,11 @@ class AuthenticatedArcaneApp extends StatelessWidget {
   final bool debugShowMaterialGrid;
   final bool disableBrowserContextMenu;
   final AbstractArcaneTheme? theme;
-
-  /// The buttons to display for each provider.
-  final List<Widget> loginButtons;
-  final Widget Function(BuildContext, List<Widget>) loginScreenBuilder;
+  final Widget Function(BuildContext, List<AuthMethod>) loginScreenBuilder;
 
   const AuthenticatedArcaneApp({
     super.key,
-    required this.loginButtons,
+    this.authMethods = const [],
     this.loginScreenBuilder = _defaultLoginBuilder,
     this.theme,
     this.navigatorKey,
@@ -86,7 +84,7 @@ class AuthenticatedArcaneApp extends StatelessWidget {
 
   const AuthenticatedArcaneApp.router({
     super.key,
-    required this.loginButtons,
+    this.authMethods = const [],
     this.loginScreenBuilder = _defaultLoginBuilder,
     this.theme,
     this.routeInformationProvider,
@@ -125,95 +123,96 @@ class AuthenticatedArcaneApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Pylon<ArcaneAuthProvider>(
-    value: svc<AuthService>(),
+      value: svc<AuthService>(),
       builder: (context) => svc<AuthService>().stream.build(
-  (auth) => !$signedIn
-      ? ArcaneApp(
-        home: loginScreenBuilder(context, loginButtons),
-        title: title,
-        theme: theme,
-        builder: builder,
-        key: key,
-        scaling: scaling,
-        shortcuts: shortcuts,
-        color: color,
-        localizationsDelegates: localizationsDelegates,
-        actions: actions,
-        debugShowCheckedModeBanner: debugShowCheckedModeBanner,
-        debugShowMaterialGrid: debugShowMaterialGrid,
-        disableBrowserContextMenu: disableBrowserContextMenu,
-        locale: locale,
-        localeListResolutionCallback: localeListResolutionCallback,
-        localeResolutionCallback: localeResolutionCallback,
-        onGenerateTitle: onGenerateTitle,
-        restorationScopeId: restorationScopeId,
-        showPerformanceOverlay: showPerformanceOverlay,
-        showSemanticsDebugger: showSemanticsDebugger,
-        supportedLocales: supportedLocales,
-      )
-          : usesRouter
-      ? ArcaneApp.router(
-        backButtonDispatcher: backButtonDispatcher,
-        routeInformationParser: routeInformationParser,
-        routeInformationProvider: routeInformationProvider,
-        routerConfig: routerConfig,
-        routerDelegate: routerDelegate,
-        title: title,
-        theme: theme,
-        onNavigationNotification: onNavigationNotification,
-        builder: builder,
-        key: key,
-        scaling: scaling,
-        shortcuts: shortcuts,
-        color: color,
-        localizationsDelegates: localizationsDelegates,
-        actions: actions,
-        debugShowCheckedModeBanner: debugShowCheckedModeBanner,
-        debugShowMaterialGrid: debugShowMaterialGrid,
-        disableBrowserContextMenu: disableBrowserContextMenu,
-        locale: locale,
-        localeListResolutionCallback: localeListResolutionCallback,
-        localeResolutionCallback: localeResolutionCallback,
-        onGenerateTitle: onGenerateTitle,
-        restorationScopeId: restorationScopeId,
-        showPerformanceOverlay: showPerformanceOverlay,
-        showSemanticsDebugger: showSemanticsDebugger,
-        supportedLocales: supportedLocales,
-      )
-          : ArcaneApp(
-        home: home,
-        title: title,
-        theme: theme,
-        navigatorKey: navigatorKey,
-        routes: routes ?? const <String, WidgetBuilder>{},
-        initialRoute: initialRoute,
-        onGenerateRoute: onGenerateRoute,
-        onGenerateInitialRoutes: onGenerateInitialRoutes,
-        onUnknownRoute: onUnknownRoute,
-        onNavigationNotification: onNavigationNotification,
-        navigatorObservers:
-        navigatorObservers ?? const <NavigatorObserver>[],
-        builder: builder,
-        key: key,
-        scaling: scaling,
-        shortcuts: shortcuts,
-        color: color,
-        localizationsDelegates: localizationsDelegates,
-        actions: actions,
-        debugShowCheckedModeBanner: debugShowCheckedModeBanner,
-        debugShowMaterialGrid: debugShowMaterialGrid,
-        disableBrowserContextMenu: disableBrowserContextMenu,
-        locale: locale,
-        localeListResolutionCallback: localeListResolutionCallback,
-        localeResolutionCallback: localeResolutionCallback,
-        onGenerateTitle: onGenerateTitle,
-        restorationScopeId: restorationScopeId,
-        showPerformanceOverlay: showPerformanceOverlay,
-        showSemanticsDebugger: showSemanticsDebugger,
-        supportedLocales: supportedLocales,
-      ),
-    loading: SizedBox.shrink())
-  );
+          (auth) => !$signedIn
+              ? ArcaneApp(
+                  home: loginScreenBuilder(context, authMethods),
+                  title: title,
+                  theme: theme,
+                  builder: builder,
+                  key: key,
+                  scaling: scaling,
+                  shortcuts: shortcuts,
+                  color: color,
+                  localizationsDelegates: localizationsDelegates,
+                  actions: actions,
+                  debugShowCheckedModeBanner: debugShowCheckedModeBanner,
+                  debugShowMaterialGrid: debugShowMaterialGrid,
+                  disableBrowserContextMenu: disableBrowserContextMenu,
+                  locale: locale,
+                  localeListResolutionCallback: localeListResolutionCallback,
+                  localeResolutionCallback: localeResolutionCallback,
+                  onGenerateTitle: onGenerateTitle,
+                  restorationScopeId: restorationScopeId,
+                  showPerformanceOverlay: showPerformanceOverlay,
+                  showSemanticsDebugger: showSemanticsDebugger,
+                  supportedLocales: supportedLocales,
+                )
+              : usesRouter
+                  ? ArcaneApp.router(
+                      backButtonDispatcher: backButtonDispatcher,
+                      routeInformationParser: routeInformationParser,
+                      routeInformationProvider: routeInformationProvider,
+                      routerConfig: routerConfig,
+                      routerDelegate: routerDelegate,
+                      title: title,
+                      theme: theme,
+                      onNavigationNotification: onNavigationNotification,
+                      builder: builder,
+                      key: key,
+                      scaling: scaling,
+                      shortcuts: shortcuts,
+                      color: color,
+                      localizationsDelegates: localizationsDelegates,
+                      actions: actions,
+                      debugShowCheckedModeBanner: debugShowCheckedModeBanner,
+                      debugShowMaterialGrid: debugShowMaterialGrid,
+                      disableBrowserContextMenu: disableBrowserContextMenu,
+                      locale: locale,
+                      localeListResolutionCallback:
+                          localeListResolutionCallback,
+                      localeResolutionCallback: localeResolutionCallback,
+                      onGenerateTitle: onGenerateTitle,
+                      restorationScopeId: restorationScopeId,
+                      showPerformanceOverlay: showPerformanceOverlay,
+                      showSemanticsDebugger: showSemanticsDebugger,
+                      supportedLocales: supportedLocales,
+                    )
+                  : ArcaneApp(
+                      home: home,
+                      title: title,
+                      theme: theme,
+                      navigatorKey: navigatorKey,
+                      routes: routes ?? const <String, WidgetBuilder>{},
+                      initialRoute: initialRoute,
+                      onGenerateRoute: onGenerateRoute,
+                      onGenerateInitialRoutes: onGenerateInitialRoutes,
+                      onUnknownRoute: onUnknownRoute,
+                      onNavigationNotification: onNavigationNotification,
+                      navigatorObservers:
+                          navigatorObservers ?? const <NavigatorObserver>[],
+                      builder: builder,
+                      key: key,
+                      scaling: scaling,
+                      shortcuts: shortcuts,
+                      color: color,
+                      localizationsDelegates: localizationsDelegates,
+                      actions: actions,
+                      debugShowCheckedModeBanner: debugShowCheckedModeBanner,
+                      debugShowMaterialGrid: debugShowMaterialGrid,
+                      disableBrowserContextMenu: disableBrowserContextMenu,
+                      locale: locale,
+                      localeListResolutionCallback:
+                          localeListResolutionCallback,
+                      localeResolutionCallback: localeResolutionCallback,
+                      onGenerateTitle: onGenerateTitle,
+                      restorationScopeId: restorationScopeId,
+                      showPerformanceOverlay: showPerformanceOverlay,
+                      showSemanticsDebugger: showSemanticsDebugger,
+                      supportedLocales: supportedLocales,
+                    ),
+          loading: SizedBox.shrink()));
 
   bool get usesRouter => routerDelegate != null || routerConfig != null;
 }

@@ -110,7 +110,7 @@ class AuthService extends StatelessService
   Future<void> waitForFirebaseInit() async {
     int tick = 1;
     bool initialized = false;
-    print("Wait for");
+
     if (!initialized) {
       try {
         FirebaseAuth.instance.app;
@@ -126,8 +126,6 @@ class AuthService extends StatelessService
         throw "Failed to initialize Firebase";
       }
     }
-
-    print("Waited");
   }
 
   @override
