@@ -1,3 +1,6 @@
+## 1.2.1
+* Wait for firebase to launch before opening box
+
 ## 1.2.0
 * BREAKING now compatible with `arcane` >=3.5.0
 * Added Facebook & Microsoft sign in support

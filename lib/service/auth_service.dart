@@ -132,8 +132,8 @@ class AuthService extends StatelessService
 
   @override
   Future<void> onStartupTask() async {
-    await _initBox();
     await waitForFirebaseInit();
+    await _initBox();
     FirebaseAuth.instance
         .authStateChanges()
         .map(_AuthState.of)
