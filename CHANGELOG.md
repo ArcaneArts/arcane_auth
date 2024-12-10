@@ -1,3 +1,6 @@
+## 1.3.0
+* BREAKING: Ui is now provided in this package instead of arcane
+
 ## 1.2.1
 * Wait for firebase to launch before opening box
 
