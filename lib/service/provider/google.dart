@@ -17,9 +17,14 @@ class ArcaneGoogleSignInProvider {
       await _signInWithGoogleWindowsV2(context);
     } else {
       gsi.GoogleSignInAccount? googleUser =
-          await gsi.GoogleSignIn.standard().signIn();
+          await gsi.GoogleSignIn.standard(scopes: ["email"]).signIn();
       gsi.GoogleSignInAuthentication? googleAuth =
           await googleUser?.authentication;
+
+      if (googleAuth == null) {
+        error("Google Auth is null!");
+      }
+
       await svc<AuthService>().signIn(GoogleAuthProvider.credential(
         accessToken: googleAuth?.accessToken,
         idToken: googleAuth?.idToken,
