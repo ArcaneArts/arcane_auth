@@ -1,3 +1,6 @@
+## 1.3.1
+* Support Arcane Routing in AuthenticatedApp
+
 ## 1.3.0
 * BREAKING: Ui is now provided in this package instead of arcane
 

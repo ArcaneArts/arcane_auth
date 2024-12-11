@@ -11,7 +11,7 @@ class AuthenticatedArcaneApp extends StatelessWidget {
   final Widget? home;
   final List<AuthMethod> authMethods;
   final Map<String, WidgetBuilder>? routes;
-  final String? initialRoute;
+  final String initialRoute;
   final RouteFactory? onGenerateRoute;
   final InitialRouteListFactory? onGenerateInitialRoutes;
   final RouteFactory? onUnknownRoute;
@@ -42,8 +42,10 @@ class AuthenticatedArcaneApp extends StatelessWidget {
   final bool disableBrowserContextMenu;
   final AbstractArcaneTheme? theme;
   final Widget Function(BuildContext, List<AuthMethod>) loginScreenBuilder;
+  final List<ArcaneRoute> arcaneRoutes;
 
   const AuthenticatedArcaneApp({
+    this.arcaneRoutes = const <ArcaneRoute>[],
     super.key,
     this.authMethods = const [],
     this.loginScreenBuilder = _defaultLoginBuilder,
@@ -51,7 +53,7 @@ class AuthenticatedArcaneApp extends StatelessWidget {
     this.navigatorKey,
     this.home,
     Map<String, WidgetBuilder> this.routes = const <String, WidgetBuilder>{},
-    this.initialRoute,
+    this.initialRoute = "/",
     this.onGenerateRoute,
     this.onGenerateInitialRoutes,
     this.onUnknownRoute,
@@ -119,7 +121,8 @@ class AuthenticatedArcaneApp extends StatelessWidget {
         onGenerateInitialRoutes = null,
         onUnknownRoute = null,
         routes = null,
-        initialRoute = null;
+        initialRoute = "/",
+        arcaneRoutes = const <ArcaneRoute>[];
 
   @override
   Widget build(BuildContext context) => Pylon<ArcaneAuthProvider>(
@@ -180,6 +183,7 @@ class AuthenticatedArcaneApp extends StatelessWidget {
                       supportedLocales: supportedLocales,
                     )
                   : ArcaneApp(
+                      arcaneRoutes: arcaneRoutes,
                       home: home,
                       title: title,
                       theme: theme,
