@@ -1,3 +1,6 @@
+## 1.3.2
+* Fixes with box keys
+
 ## 1.3.1
 * Support Arcane Routing in AuthenticatedApp
 

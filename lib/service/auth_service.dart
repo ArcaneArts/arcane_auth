@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:arcane/arcane.dart';
 import 'package:arcane_auth/arcane_auth.dart';
-import 'package:crypto/crypto.dart';
 import 'package:fast_log/fast_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -87,7 +85,7 @@ class AuthService extends StatelessService
   Stream<int> _genBoxKey([int length = 32]) async* {
     String grn([int length = 32]) {
       String charset =
-          '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._${sha512.convert(utf8.encode("${FirebaseAuth.instance.app.name}.${FirebaseAuth.instance.app.options.appId}.${FirebaseAuth.instance.app.options.apiKey}.${FirebaseAuth.instance.app.options.projectId}"))}';
+          '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-.';
       Random random = Random.secure();
       return List.generate(
           length, (_) => charset[random.nextInt(charset.length)]).join();
