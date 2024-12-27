@@ -1,3 +1,6 @@
+## 1.4.0
+* Upgrade Arcane
+
 ## 1.3.2
 * Fixes with box keys
 

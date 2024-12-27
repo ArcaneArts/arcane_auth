@@ -40,7 +40,7 @@ class AuthenticatedArcaneApp extends StatelessWidget {
   final String? restorationScopeId;
   final bool debugShowMaterialGrid;
   final bool disableBrowserContextMenu;
-  final AbstractArcaneTheme? theme;
+  final ArcaneTheme? theme;
   final Widget Function(BuildContext, List<AuthMethod>) loginScreenBuilder;
   final List<ArcaneRoute> arcaneRoutes;
 
