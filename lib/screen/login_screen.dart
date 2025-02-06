@@ -3,18 +3,26 @@ import 'package:arcane_auth/arcane_auth.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:fast_log/fast_log.dart';
 
+enum PasswordVisibility {
+  disabled,
+  hold,
+  toggle,
+}
+
 class LoginScreen extends StatefulWidget {
   final Widget header;
   final List<AuthMethod> authMethods;
   final ArcanePasswordPolicy passwordPolicy;
-  final bool allowViewPassword;
 
-  const LoginScreen(
-      {super.key,
-      this.passwordPolicy = const ArcanePasswordPolicy(),
-      this.allowViewPassword = true,
-      required this.authMethods,
-      this.header = const SizedBox.shrink()});
+  final PasswordVisibility passwordVisibility;
+
+  const LoginScreen({
+    super.key,
+    this.passwordPolicy = const ArcanePasswordPolicy(),
+    this.passwordVisibility = PasswordVisibility.hold,
+    required this.authMethods,
+    this.header = const SizedBox.shrink(),
+  });
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -52,6 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 loading = l;
               }),
               passwordPolicy: widget.passwordPolicy,
+              passwordVisibility: widget.passwordVisibility,
             ),
           Gap(16),
           loading
@@ -124,11 +133,14 @@ class ArcanePasswordPolicy {
 class ArcaneEmailPasswordCard extends StatefulWidget {
   final ArcanePasswordPolicy passwordPolicy;
   final ValueChanged<bool> loading;
+  final PasswordVisibility passwordVisibility;
 
-  const ArcaneEmailPasswordCard(
-      {super.key,
-      required this.loading,
-      this.passwordPolicy = const ArcanePasswordPolicy()});
+  const ArcaneEmailPasswordCard({
+    super.key,
+    required this.loading,
+    this.passwordPolicy = const ArcanePasswordPolicy(),
+    this.passwordVisibility = PasswordVisibility.hold,
+  });
 
   @override
   State<ArcaneEmailPasswordCard> createState() =>
@@ -218,6 +230,30 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
     widget.loading(loading);
   }
 
+  Widget _buildPasswordTrailing({
+    required bool isRevealed,
+    required VoidCallback onToggle,
+    required VoidCallback onPressDown,
+    required VoidCallback onPressUp,
+  }) {
+    switch (widget.passwordVisibility) {
+      case PasswordVisibility.disabled:
+        return Icon(Icons.eye_closed);
+      case PasswordVisibility.toggle:
+        return GestureDetector(
+          onTap: onToggle,
+          child: Icon(isRevealed ? Icons.eye : Icons.eye_closed),
+        );
+      case PasswordVisibility.hold:
+        return GestureDetector(
+          onTapDown: (_) => onPressDown(),
+          onTapUp: (_) => onPressUp(),
+          onTapCancel: onPressUp,
+          child: Icon(isRevealed ? Icons.eye : Icons.eye_closed),
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Card(
         child: loading
@@ -282,30 +318,35 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                   controller: passwordController,
                                   autofillHints: [AutofillHints.password],
                                   placeholder: "Password",
-                                  obscureText: !revealingPassword,
+                                  obscureText: widget.passwordVisibility ==
+                                          PasswordVisibility.disabled
+                                      ? true
+                                      : !revealingPassword,
                                   border: false,
-                                  trailing: GestureDetector(
-                                    onTapDown: (_) => setState(() {
+                                  trailing: _buildPasswordTrailing(
+                                    isRevealed: revealingPassword,
+                                    onToggle: () => setState(() {
+                                      revealingPassword = !revealingPassword;
+                                    }),
+                                    onPressDown: () => setState(() {
                                       revealingPassword = true;
                                     }),
-                                    onTapUp: (_) => setState(() {
+                                    onPressUp: () => setState(() {
                                       revealingPassword = false;
                                     }),
-                                    child: Icon(revealingPassword
-                                        ? Icons.eye
-                                        : Icons.eye_closed),
                                   ),
                                   leading: Icon(Icons.lock),
                                   onChanged: (_) => setState(() {
                                     touchedPassword = true;
                                   }),
-                                  onSubmitted: (pass) => setState(() {
-                                    touchedPassword = true;
-
+                                  onSubmitted: (pass) {
+                                    setState(() {
+                                      touchedPassword = true;
+                                    });
                                     if (isValid) {
                                       _login();
                                     }
-                                  }),
+                                  },
                                 ),
                                 if (validate().isNotEmpty) ...[
                                   Gap(8),
@@ -365,23 +406,26 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                   controller: passwordController,
                                   autofillHints: [AutofillHints.password],
                                   placeholder: "Password",
-                                  trailing: GestureDetector(
-                                    onTapDown: (_) => setState(() {
+                                  obscureText: widget.passwordVisibility ==
+                                          PasswordVisibility.disabled
+                                      ? true
+                                      : !revealingPassword,
+                                  trailing: _buildPasswordTrailing(
+                                    isRevealed: revealingPassword,
+                                    onToggle: () => setState(() {
+                                      revealingPassword = !revealingPassword;
+                                    }),
+                                    onPressDown: () => setState(() {
                                       revealingPassword = true;
                                     }),
-                                    onTapUp: (_) => setState(() {
+                                    onPressUp: () => setState(() {
                                       revealingPassword = false;
                                     }),
-                                    child: Icon(revealingPassword
-                                        ? Icons.eye
-                                        : Icons.eye_closed),
                                   ),
-                                  obscureText: !revealingPassword,
-                                  border: false,
+                                  leading: Icon(Icons.lock),
                                   onChanged: (_) => setState(() {
                                     touchedPassword = true;
                                   }),
-                                  leading: Icon(Icons.lock),
                                   onSubmitted: (pass) =>
                                       passwordConfirmFocus.requestFocus(),
                                 ),
@@ -391,18 +435,23 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                   controller: passwordConfirmController,
                                   autofillHints: [AutofillHints.password],
                                   placeholder: "Confirm Password",
-                                  obscureText: !revealingPasswordConfirm,
+                                  obscureText: widget.passwordVisibility ==
+                                          PasswordVisibility.disabled
+                                      ? true
+                                      : !revealingPasswordConfirm,
                                   border: false,
-                                  trailing: GestureDetector(
-                                    onTapDown: (_) => setState(() {
+                                  trailing: _buildPasswordTrailing(
+                                    isRevealed: revealingPasswordConfirm,
+                                    onToggle: () => setState(() {
+                                      revealingPasswordConfirm =
+                                          !revealingPasswordConfirm;
+                                    }),
+                                    onPressDown: () => setState(() {
                                       revealingPasswordConfirm = true;
                                     }),
-                                    onTapUp: (_) => setState(() {
+                                    onPressUp: () => setState(() {
                                       revealingPasswordConfirm = false;
                                     }),
-                                    child: Icon(revealingPasswordConfirm
-                                        ? Icons.eye
-                                        : Icons.eye_closed),
                                   ),
                                   onChanged: (_) => setState(() {
                                     touchedPasswordConfirm = true;
