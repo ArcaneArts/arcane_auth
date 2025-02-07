@@ -1,3 +1,6 @@
+## 1.5.1
+* Added PasswordVisibility 
+
 ## 1.5.0
 * Upgrade to Arcane 3.11.X
 
