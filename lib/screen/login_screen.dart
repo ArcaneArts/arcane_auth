@@ -19,7 +19,7 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({
     super.key,
     this.passwordPolicy = const ArcanePasswordPolicy(),
-    this.passwordVisibility = PasswordVisibility.hold,
+    this.passwordVisibility = PasswordVisibility.toggle,
     required this.authMethods,
     this.header = const SizedBox.shrink(),
   });
