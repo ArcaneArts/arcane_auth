@@ -28,6 +28,7 @@ class ArcaneAppleSignInProvider {
     await svc<AuthService>().signIn(OAuthProvider("apple.com").credential(
       idToken: appleCredential.identityToken,
       rawNonce: rawNonce,
+      accessToken: appleCredential.authorizationCode,
     ));
   }
 
