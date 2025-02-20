@@ -1,3 +1,6 @@
+## 1.5.3
+* Upgrade arcane to support new tabbing
+
 ## 1.5.1
 * Added PasswordVisibility 
 

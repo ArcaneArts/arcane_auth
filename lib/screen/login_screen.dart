@@ -278,7 +278,10 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                               passwordConfirmController.clear();
                             });
                           }),
-                      tabs: [Text("Log In"), Text("Register")]),
+                      children: [
+                        TabChildWidget(child: Text("Log In")),
+                        TabChildWidget(child: Text("Register"))
+                      ]),
                   Gap(16),
                   AnimatedSize(
                     clipBehavior: Clip.none,
