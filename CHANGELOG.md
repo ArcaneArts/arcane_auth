@@ -1,3 +1,6 @@
+## 1.5.4
+* Fix Tabs
+
 ## 1.5.3
 * Upgrade arcane to support new tabbing
 

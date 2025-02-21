@@ -279,8 +279,8 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                             });
                           }),
                       children: [
-                        TabChildWidget(child: Text("Log In")),
-                        TabChildWidget(child: Text("Register"))
+                        TabItem(child: Text("Log In")),
+                        TabItem(child: Text("Register"))
                       ]),
                   Gap(16),
                   AnimatedSize(
