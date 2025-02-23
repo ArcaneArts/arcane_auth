@@ -1,6 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'dart:io';
+
 import 'package:arcane_auth/arcane_auth.dart';
+import 'package:arcane_auth/social/site/github/github_sign_in_config.dart';
+import 'package:arcane_auth/social/site/github/github_sign_in_desktop.dart';
+import 'package:flutter/cupertino.dart';
 
 /// An implementation of [SocialSignInPlatform] that uses method channels for desktop.
 class SocialSignInDesktop extends SocialSignInPlatform {
@@ -41,6 +44,10 @@ class SocialSignInDesktop extends SocialSignInPlatform {
             siteInfo = MicrosoftSignInDesktop.fromProfile(config);
           }
           break;
+        case SocialPlatform.github:
+          if (config is GitHubSignInConfig) {
+            siteInfo = GitHubSignInDesktop.fromProfile(config);
+          }
         default:
           throw Exception("Unsupported social site of desktop!");
       }

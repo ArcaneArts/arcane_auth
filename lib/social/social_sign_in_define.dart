@@ -1,5 +1,3 @@
-import 'package:arcane_auth/arcane_auth.dart';
-
 ///Representing different platforms of social Sign-in.
 enum SocialPlatform {
   ///https://developer.apple.com/account/resources/identifiers/list/bundleId
@@ -13,6 +11,9 @@ enum SocialPlatform {
 
   ///https://portal.azure.com/
   microsoft,
+
+  ///https://github.com/settings/applications/new to make a new OAuth app
+  github,
 }
 
 ///Representing the status after login.
