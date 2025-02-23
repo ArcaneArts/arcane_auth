@@ -268,7 +268,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
               )
             : Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Tabs(
                       index: index,
