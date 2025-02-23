@@ -25,11 +25,13 @@ class GithubSignInButton extends StatelessWidget {
 
 class GithubLogo extends StatelessWidget {
   final double size;
-  const GithubLogo({Key? key, this.size = 14}) : super(key: key);
+  const GithubLogo({Key? key, this.size = 18}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Using FontAwesome GitHub icon (a monochrome GitHub logo, it's the squid thing.)
-    return Icon(FontAwesomeIcons.github, size: size);
+    return Icon(
+      Icons.logo_github_ionic,
+      size: size,
+    );
   }
 }
