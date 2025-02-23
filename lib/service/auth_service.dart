@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:arcane/arcane.dart';
 import 'package:arcane_auth/arcane_auth.dart';
+import 'package:arcane_auth/service/provider/github.dart';
+import 'package:arcane_auth/social/site/github/github_sign_in_result.dart';
 import 'package:fast_log/fast_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -373,6 +375,8 @@ extension XArcaneSignInProviderType on ArcaneSignInProviderType {
           ArcaneFacebookSignInProvider.signInWithFacebook(context),
         ArcaneSignInProviderType.microsoft =>
           ArcaneMicrosoftSignInProvider.signInWithMicrosoft(context),
+        ArcaneSignInProviderType.github =>
+          ArcaneGitHubSignInProvider.signInWithGitHub(context), // Add this line
       };
 }
 
@@ -392,6 +396,8 @@ extension XAuthCredentialBind on SocialSignInResultInterface {
           FacebookAuthProvider.credential(r.accessToken),
         (MicrosoftSignInResult r) =>
           MicrosoftAuthProvider.credential(r.accessToken),
+        (GitHubSignInResult r) => GithubAuthProvider.credential(
+            r.accessToken), // NEW: Convert GitHub token
         _ => throw UnimplementedError(
             "Unknown/Unhandled SocialSignInResultInterface ${runtimeType}")
       };

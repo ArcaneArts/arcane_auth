@@ -1,5 +1,6 @@
 import 'package:arcane/arcane.dart' hide EmailValidator;
 import 'package:arcane_auth/arcane_auth.dart';
+import 'package:arcane_auth/buttons/github_sign_in_button.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:fast_log/fast_log.dart';
 
@@ -36,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
             AuthMethod.google => GoogleSignInButton(),
             AuthMethod.apple => AppleSignInButton(),
             AuthMethod.microsoft => AppleSignInButton(),
+            AuthMethod.github => GithubSignInButton(),
             AuthMethod.facebook => FacebookSignInButton(),
             _ => null
           })
