@@ -12,7 +12,7 @@ A Flutter package for authenticating with firebase_auth providers using the arca
 | Apple       | NYI           | sign_in_with_apple | NYI            | sign_in_with_apple | NYI           |
 | Facebook    | firebase_auth | arcane_auth        | arcane_auth    | arcane_auth        | arcane_auth   |
 | Microsoft   | firebase_auth | arcane_auth        | arcane_auth    | arcane_auth        | arcane_auth   |
-| Github      | NYI           | NYI                | NYI            | NYI                | NYI           |
+| Github      | firebase_auth | arcane_auth        | arcane_auth    | arcane_auth        | arcane_auth   |
 | Yahoo       | NYI           | NYI                | NYI            | NYI                | NYI           |
 | X           | NYI           | NYI                | NYI            | NYI                | NYI           |
 | Play Games  | NYI           | NYI                | NYI            | NYI                | NYI           |

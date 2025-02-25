@@ -1,3 +1,8 @@
+## 1.6.0
+* Added Github sign in support
+* Fixes in loading states in the sign in screen
+* Updated support table
+
 ## 1.5.4
 * Fix Tabs
 
