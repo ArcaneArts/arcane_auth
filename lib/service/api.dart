@@ -11,7 +11,7 @@ abstract class ArcaneAuthProvider {
       {required String email, required String password});
 }
 
-enum ArcaneSignInProviderType { google, apple, microsoft, facebook }
+enum ArcaneSignInProviderType { google, apple, microsoft, facebook, github }
 
 enum AuthMethod {
   emailPassword,
@@ -20,5 +20,6 @@ enum AuthMethod {
   google,
   apple,
   microsoft,
-  facebook
+  facebook,
+  github,
 }

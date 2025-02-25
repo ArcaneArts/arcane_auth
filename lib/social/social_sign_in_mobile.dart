@@ -1,5 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:arcane_auth/arcane_auth.dart';
+import 'package:arcane_auth/social/site/github/github_sign_in.dart';
+import 'package:arcane_auth/social/site/github/github_sign_in_config.dart';
+import 'package:flutter/cupertino.dart';
 
 /// An implementation of [SocialSignInPlatform] that uses method channels for mobile.
 class SocialSignInMobile extends SocialSignInPlatform {
@@ -33,6 +35,11 @@ class SocialSignInMobile extends SocialSignInPlatform {
         case SocialPlatform.microsoft:
           if (config is MicrosoftSignInConfig) {
             siteInfo = MicrosoftSignIn.fromProfile(config);
+          }
+          break;
+        case SocialPlatform.github:
+          if (config is GitHubSignInConfig) {
+            siteInfo = GitHubSignIn.fromProfile(config);
           }
           break;
         default:

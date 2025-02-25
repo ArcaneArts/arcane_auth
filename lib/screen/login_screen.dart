@@ -3,11 +3,7 @@ import 'package:arcane_auth/arcane_auth.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:fast_log/fast_log.dart';
 
-enum PasswordVisibility {
-  disabled,
-  hold,
-  toggle,
-}
+enum PasswordVisibility { disabled, hold, toggle }
 
 class LoginScreen extends StatefulWidget {
   final Widget header;
@@ -36,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
             AuthMethod.google => GoogleSignInButton(),
             AuthMethod.apple => AppleSignInButton(),
             AuthMethod.microsoft => AppleSignInButton(),
+            AuthMethod.github => GithubSignInButton(),
             AuthMethod.facebook => FacebookSignInButton(),
             _ => null
           })
@@ -104,11 +101,11 @@ class ArcanePasswordPolicy {
     }
 
     if (password.length < minPasswordLength) {
-      yield "Password must be at least ${minPasswordLength} characters long";
+      yield "Password must be at least $minPasswordLength characters long";
     }
 
     if (password.length > maxPasswordLength) {
-      yield "Password must be no more than ${maxPasswordLength} characters long";
+      yield "Password must be no more than $maxPasswordLength characters long";
     }
 
     if (requireUppercaseLetter && !RegExp(r'[A-Z]').hasMatch(password)) {
@@ -192,11 +189,13 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
     setState(() {
       loading = true;
     });
-    widget.loading(loading);
+    widget.loading(true);
     await Future.delayed(1.seconds);
     try {
       await context.pylon<ArcaneAuthProvider>().signInWithEmailPassword(
-          email: emailController.text, password: passwordController.text);
+            email: emailController.text,
+            password: passwordController.text,
+          );
     } catch (e) {
       error("Login Error $e");
       TextToast("Login Error $e").open(context);
@@ -206,18 +205,20 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
     setState(() {
       loading = false;
     });
-    widget.loading(loading);
+    widget.loading(false);
   }
 
   void _register() async {
     setState(() {
       loading = true;
     });
-    widget.loading(loading);
+    widget.loading(true);
     await Future.delayed(1.seconds);
     try {
       await context.pylon<ArcaneAuthProvider>().registerWithEmailPassword(
-          email: emailController.text, password: passwordController.text);
+            email: emailController.text,
+            password: passwordController.text,
+          );
     } catch (e) {
       error("Register Error $e");
       TextToast("Register Error $e").open(context);
@@ -227,7 +228,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
     setState(() {
       loading = false;
     });
-    widget.loading(loading);
+    widget.loading(false);
   }
 
   Widget _buildPasswordTrailing({
@@ -266,7 +267,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
               )
             : Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Tabs(
                       index: index,
