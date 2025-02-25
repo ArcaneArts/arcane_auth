@@ -32,6 +32,7 @@ class GithubLogo extends StatelessWidget {
     return Icon(
       Icons.logo_github_ionic,
       size: size,
+      color: Theme.of(context).colorScheme.mutedForeground,
     );
   }
 }
