@@ -303,7 +303,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                   focusNode: emailFocus,
                                   controller: emailController,
                                   autofillHints: [AutofillHints.email],
-                                  placeholder: "Email",
+                                  placeholder: Text("Email"),
                                   border: false,
                                   leading: Icon(Icons.mail_outline_ionic),
                                   onChanged: (_) => setState(() {}),
@@ -321,7 +321,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                   focusNode: passwordFocus,
                                   controller: passwordController,
                                   autofillHints: [AutofillHints.password],
-                                  placeholder: "Password",
+                                  placeholder: Text("Password"),
                                   obscureText: widget.passwordVisibility ==
                                           PasswordVisibility.disabled
                                       ? true
@@ -391,7 +391,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                   focusNode: emailFocus,
                                   controller: emailController,
                                   autofillHints: [AutofillHints.email],
-                                  placeholder: "Email",
+                                  placeholder: Text("Email"),
                                   border: false,
                                   onChanged: (_) => setState(() {}),
                                   leading: Icon(Icons.mail_outline_ionic),
@@ -409,11 +409,12 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                   focusNode: passwordFocus,
                                   controller: passwordController,
                                   autofillHints: [AutofillHints.password],
-                                  placeholder: "Password",
+                                  placeholder: Text("Password"),
                                   obscureText: widget.passwordVisibility ==
                                           PasswordVisibility.disabled
                                       ? true
                                       : !revealingPassword,
+                                  border: false,
                                   trailing: _buildPasswordTrailing(
                                     isRevealed: revealingPassword,
                                     onToggle: () => setState(() {
@@ -438,7 +439,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                   focusNode: passwordConfirmFocus,
                                   controller: passwordConfirmController,
                                   autofillHints: [AutofillHints.password],
-                                  placeholder: "Confirm Password",
+                                  placeholder: Text("Confirm Password"),
                                   obscureText: widget.passwordVisibility ==
                                           PasswordVisibility.disabled
                                       ? true
