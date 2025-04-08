@@ -3,8 +3,6 @@ import 'dart:math';
 
 import 'package:arcane/arcane.dart';
 import 'package:arcane_auth/arcane_auth.dart';
-import 'package:arcane_auth/service/provider/github.dart';
-import 'package:arcane_auth/social/site/github/github_sign_in_result.dart';
 import 'package:fast_log/fast_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -15,24 +13,6 @@ import 'package:serviced/serviced.dart';
 String? get $uid => svc<AuthService>()._fbUid;
 bool get $signedIn => svc<AuthService>()._fbSignedIn;
 bool get $anonymous => svc<AuthService>()._fbAnonymous;
-
-void initArcaneAuth({
-  bool allowAnonymous = false,
-  Future<void> Function(UserMeta user)? onBind,
-  Future<void> Function()? onUnbind,
-  bool autoLink = true,
-  List<SocialSignInSiteConfig> signInConfigs = const [],
-}) {
-  services().register<AuthService>(
-      () => AuthService(
-            signInConfigs: signInConfigs,
-            onBind: onBind,
-            onUnbind: onUnbind,
-            allowAnonymous: allowAnonymous,
-            autoLink: autoLink,
-          ),
-      lazy: false);
-}
 
 class AuthService extends StatelessService
     implements AsyncStartupTasked, ArcaneAuthProvider {

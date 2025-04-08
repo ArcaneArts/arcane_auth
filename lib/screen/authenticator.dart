@@ -5,11 +5,94 @@ import 'package:serviced/serviced.dart';
 Widget _defaultLoginBuilder(BuildContext context, List<AuthMethod> methods) =>
     LoginScreen(authMethods: methods);
 
+void _initArcaneAuth({
+  bool allowAnonymous = false,
+  Future<void> Function(UserMeta user)? onBind,
+  Future<void> Function()? onUnbind,
+  bool autoLink = true,
+  List<SocialSignInSiteConfig> signInConfigs = const [],
+}) {
+  services().register<AuthService>(
+      () => AuthService(
+            signInConfigs: signInConfigs,
+            onBind: onBind,
+            onUnbind: onUnbind,
+            allowAnonymous: allowAnonymous,
+            autoLink: autoLink,
+          ),
+      lazy: false);
+}
+
+class ArcaneAuthConfig {
+  final bool allowAnonymous;
+  final Future<void> Function(UserMeta user)? onBind;
+  final Future<void> Function()? onUnbind;
+  final bool autoLink;
+  final List<SocialSignInSiteConfig> signInConfigs;
+  final List<AuthMethod> authMethods;
+  final Widget Function(BuildContext, List<AuthMethod>) loginScreenBuilder;
+
+  const ArcaneAuthConfig({
+    this.allowAnonymous = false,
+    this.onBind,
+    this.onUnbind,
+    this.autoLink = true,
+    this.signInConfigs = const [],
+    this.authMethods = const [],
+    this.loginScreenBuilder = _defaultLoginBuilder,
+  });
+}
+
+class _ArcaneAuthInitializer extends StatefulWidget {
+  final PylonBuilder builder;
+  final ArcaneAuthConfig config;
+
+  const _ArcaneAuthInitializer({
+    super.key,
+    required this.builder,
+    this.config = const ArcaneAuthConfig(),
+  });
+
+  @override
+  State<_ArcaneAuthInitializer> createState() => _ArcaneAuthInitializerState();
+}
+
+class _ArcaneAuthInitializerState extends State<_ArcaneAuthInitializer> {
+  late Future<void> _work;
+
+  @override
+  void initState() {
+    services().register<AuthService>(
+        () => AuthService(
+              signInConfigs: widget.config.signInConfigs,
+              onBind: widget.config.onBind,
+              onUnbind: widget.config.onUnbind,
+              allowAnonymous: widget.config.allowAnonymous,
+              autoLink: widget.config.autoLink,
+            ),
+        lazy: false);
+    _work = services().waitForStartup();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    assert(widget.config.authMethods.isNotEmpty,
+        'No auth methods provided. Provide at least one auth method in AuthenticatedArcaneApp.autoConfig.authMethods');
+
+    return _work.build((_) => Builder(builder: widget.builder),
+        loading: FillScreen(
+            child: Center(
+          child: CircularProgressIndicator(),
+        )));
+  }
+}
+
 class AuthenticatedArcaneApp extends StatelessWidget {
+  final ArcaneAuthConfig authConfig;
   final GlobalKey<NavigatorState>? navigatorKey;
   final AdaptiveScaling? scaling;
   final Widget? home;
-  final List<AuthMethod> authMethods;
   final Map<String, WidgetBuilder>? routes;
   final String initialRoute;
   final RouteFactory? onGenerateRoute;
@@ -41,12 +124,10 @@ class AuthenticatedArcaneApp extends StatelessWidget {
   final bool debugShowMaterialGrid;
   final bool disableBrowserContextMenu;
   final ArcaneTheme? theme;
-  final Widget Function(BuildContext, List<AuthMethod>) loginScreenBuilder;
 
   const AuthenticatedArcaneApp({
     super.key,
-    this.authMethods = const [],
-    this.loginScreenBuilder = _defaultLoginBuilder,
+    required this.authConfig,
     this.theme,
     this.navigatorKey,
     this.home,
@@ -84,8 +165,7 @@ class AuthenticatedArcaneApp extends StatelessWidget {
 
   const AuthenticatedArcaneApp.router({
     super.key,
-    this.authMethods = const [],
-    this.loginScreenBuilder = _defaultLoginBuilder,
+    required this.authConfig,
     this.theme,
     this.routeInformationProvider,
     this.routeInformationParser,
@@ -122,43 +202,16 @@ class AuthenticatedArcaneApp extends StatelessWidget {
         initialRoute = "/";
 
   @override
-  Widget build(BuildContext context) => Pylon<ArcaneAuthProvider>(
-      value: svc<AuthService>(),
-      builder: (context) => svc<AuthService>().stream.build(
-          (auth) => !$signedIn
-              ? ArcaneApp(
-                  home: loginScreenBuilder(context, authMethods),
-                  title: title,
-                  theme: theme,
-                  builder: builder,
-                  key: key,
-                  scaling: scaling,
-                  shortcuts: shortcuts,
-                  color: color,
-                  localizationsDelegates: localizationsDelegates,
-                  actions: actions,
-                  debugShowCheckedModeBanner: debugShowCheckedModeBanner,
-                  debugShowMaterialGrid: debugShowMaterialGrid,
-                  disableBrowserContextMenu: disableBrowserContextMenu,
-                  locale: locale,
-                  localeListResolutionCallback: localeListResolutionCallback,
-                  localeResolutionCallback: localeResolutionCallback,
-                  onGenerateTitle: onGenerateTitle,
-                  restorationScopeId: restorationScopeId,
-                  showPerformanceOverlay: showPerformanceOverlay,
-                  showSemanticsDebugger: showSemanticsDebugger,
-                  supportedLocales: supportedLocales,
-                )
-              : usesRouter
-                  ? ArcaneApp.router(
-                      backButtonDispatcher: backButtonDispatcher,
-                      routeInformationParser: routeInformationParser,
-                      routeInformationProvider: routeInformationProvider,
-                      routerConfig: routerConfig,
-                      routerDelegate: routerDelegate,
+  Widget build(BuildContext context) => _ArcaneAuthInitializer(
+      builder: (context) => Pylon<ArcaneAuthProvider>(
+          value: svc<AuthService>(),
+          builder: (context) => svc<AuthService>().stream.build(
+              (auth) => !$signedIn
+                  ? ArcaneApp(
+                      home: authConfig.loginScreenBuilder(
+                          context, authConfig.authMethods),
                       title: title,
                       theme: theme,
-                      onNavigationNotification: onNavigationNotification,
                       builder: builder,
                       key: key,
                       scaling: scaling,
@@ -179,40 +232,72 @@ class AuthenticatedArcaneApp extends StatelessWidget {
                       showSemanticsDebugger: showSemanticsDebugger,
                       supportedLocales: supportedLocales,
                     )
-                  : ArcaneApp(
-                      home: home,
-                      title: title,
-                      theme: theme,
-                      navigatorKey: navigatorKey,
-                      routes: routes ?? const <String, WidgetBuilder>{},
-                      initialRoute: initialRoute,
-                      onGenerateRoute: onGenerateRoute,
-                      onGenerateInitialRoutes: onGenerateInitialRoutes,
-                      onUnknownRoute: onUnknownRoute,
-                      onNavigationNotification: onNavigationNotification,
-                      navigatorObservers:
-                          navigatorObservers ?? const <NavigatorObserver>[],
-                      builder: builder,
-                      key: key,
-                      scaling: scaling,
-                      shortcuts: shortcuts,
-                      color: color,
-                      localizationsDelegates: localizationsDelegates,
-                      actions: actions,
-                      debugShowCheckedModeBanner: debugShowCheckedModeBanner,
-                      debugShowMaterialGrid: debugShowMaterialGrid,
-                      disableBrowserContextMenu: disableBrowserContextMenu,
-                      locale: locale,
-                      localeListResolutionCallback:
-                          localeListResolutionCallback,
-                      localeResolutionCallback: localeResolutionCallback,
-                      onGenerateTitle: onGenerateTitle,
-                      restorationScopeId: restorationScopeId,
-                      showPerformanceOverlay: showPerformanceOverlay,
-                      showSemanticsDebugger: showSemanticsDebugger,
-                      supportedLocales: supportedLocales,
-                    ),
-          loading: SizedBox.shrink()));
+                  : usesRouter
+                      ? ArcaneApp.router(
+                          backButtonDispatcher: backButtonDispatcher,
+                          routeInformationParser: routeInformationParser,
+                          routeInformationProvider: routeInformationProvider,
+                          routerConfig: routerConfig,
+                          routerDelegate: routerDelegate,
+                          title: title,
+                          theme: theme,
+                          onNavigationNotification: onNavigationNotification,
+                          builder: builder,
+                          key: key,
+                          scaling: scaling,
+                          shortcuts: shortcuts,
+                          color: color,
+                          localizationsDelegates: localizationsDelegates,
+                          actions: actions,
+                          debugShowCheckedModeBanner:
+                              debugShowCheckedModeBanner,
+                          debugShowMaterialGrid: debugShowMaterialGrid,
+                          disableBrowserContextMenu: disableBrowserContextMenu,
+                          locale: locale,
+                          localeListResolutionCallback:
+                              localeListResolutionCallback,
+                          localeResolutionCallback: localeResolutionCallback,
+                          onGenerateTitle: onGenerateTitle,
+                          restorationScopeId: restorationScopeId,
+                          showPerformanceOverlay: showPerformanceOverlay,
+                          showSemanticsDebugger: showSemanticsDebugger,
+                          supportedLocales: supportedLocales,
+                        )
+                      : ArcaneApp(
+                          home: home,
+                          title: title,
+                          theme: theme,
+                          navigatorKey: navigatorKey,
+                          routes: routes ?? const <String, WidgetBuilder>{},
+                          initialRoute: initialRoute,
+                          onGenerateRoute: onGenerateRoute,
+                          onGenerateInitialRoutes: onGenerateInitialRoutes,
+                          onUnknownRoute: onUnknownRoute,
+                          onNavigationNotification: onNavigationNotification,
+                          navigatorObservers:
+                              navigatorObservers ?? const <NavigatorObserver>[],
+                          builder: builder,
+                          key: key,
+                          scaling: scaling,
+                          shortcuts: shortcuts,
+                          color: color,
+                          localizationsDelegates: localizationsDelegates,
+                          actions: actions,
+                          debugShowCheckedModeBanner:
+                              debugShowCheckedModeBanner,
+                          debugShowMaterialGrid: debugShowMaterialGrid,
+                          disableBrowserContextMenu: disableBrowserContextMenu,
+                          locale: locale,
+                          localeListResolutionCallback:
+                              localeListResolutionCallback,
+                          localeResolutionCallback: localeResolutionCallback,
+                          onGenerateTitle: onGenerateTitle,
+                          restorationScopeId: restorationScopeId,
+                          showPerformanceOverlay: showPerformanceOverlay,
+                          showSemanticsDebugger: showSemanticsDebugger,
+                          supportedLocales: supportedLocales,
+                        ),
+              loading: SizedBox.shrink())));
 
   bool get usesRouter => routerDelegate != null || routerConfig != null;
 }

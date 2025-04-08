@@ -1,6 +1,8 @@
 # 1.7.0
 * Support Arcane 5.1
 * Support sign_in_with_apple 7
+* AuthConfig class defined in `AuthenticatedArcaneApp`.
+* BREAKING: Removed `initArcaneAuth` method. All configuration done in `AuthenticatedArcaneApp`.
 
 # 1.6.1
 * Support Arcane 5
