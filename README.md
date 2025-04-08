@@ -1,7 +1,7 @@
 # arcane_auth
 
 A Flutter package for authenticating with firebase_auth providers using the arcane package for UI.
-
+ 
 |             | Web           | iOS                | Android        | MacOS              | Windows       |
 |-------------|---------------|--------------------|----------------|--------------------|---------------|
 | Anonymous   | firebase_auth | firebase_auth      | firebase_auth  | firebase_auth      | firebase_auth |
@@ -50,45 +50,6 @@ Currently only IOS and MacOS are easily supported for Apple Sign In which do not
 
 First add arcane auth if you haven't `flutter pub add arcane_auth`
 
-Then in your main, setup arcane_auth
-
-```dart
-Future<void> main() async {
-  // ensure widgets binding is initialized and setup firebase first
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // init arcane auth
-  initArcaneAuth(
-      signInConfigs: [
-        // Add the sign in providers you would like to use
-        GoogleSignInConfig(
-            clientId:
-            "CLIENT-ID.apps.googleusercontent.com",
-            clientSecret: "CLIENT-SECRET",
-            redirectUrl: "https://YOURAPP.firebaseapp.com/__/auth/handler")
-      ],
-      
-      // This is called when the user is signed in, you can use this to 
-      // subscribe to user data or initialize stuff for that user
-      onBind: (s) async {
-        print("BOUND ${s}");
-      },
-      
-      // This is called when the user is signed out or before the next sign in
-      // you can use this to unsubscribe from user data or clean up stuff
-      onUnbind: () async {
-        print("UNBOUND");
-      });
-  
-  // wait for services to start up
-  await services().waitForStartup();
-  
-  // Finally run your app
-  runApp(MyApp());
-}
-```
-
 Then in your app, you can use the `AuthenticatedArcaneApp` to handle dual app states. 
 If the user is not signed in, a different app with the same style / properties will be used
 with a single home of the login screen. The second they are authenticated it switches back
@@ -101,29 +62,58 @@ class MyApp extends StatelessWidget {
   // Use an AuthenticatedArcaneApp instead of ArcaneApp
   @override
   Widget build(BuildContext context) => AuthenticatedArcaneApp(
-    // Define the sign in providers you would like to use
-    loginButtons: [
-      GoogleSignInButton(),
-      AppleSignInButton(),
-    ],
     
-    // Define the screen that will be shown when the user is not signed in
-    loginScreenBuilder: (context, buttons) => LoginScreen(
-      loginButtons: buttons,
-      header: Text("My Cool App").x9Large(),
+    // Define auth config
+    authConfig: AuthConfig(
+      // Define what auth methods you want to support
+      authMethods: [AuthMethod.emailPassword, AuthMethod.google],
       
-      // If you want to allow email/password sign in enable this
-      allowEmailPassword: true,
+      // Should we allow anonymous logins
+      allowAnonymous: false,
       
-      // Match this with your firebase password policy 
-      // Defaults to the default firebase password policy
-      passwordPolicy: ArcanePasswordPolicy(
-        maxPasswordLength: 4096,
-        minPasswordLength: 6,
-        requireLowercaseLetter: false,
-        requireNumericCharacter: false,
-        requireSpecialCharacter: false,
-        requireUppercaseLetter: false,
+      // When signing into a google account, link it to existing emailpass account
+      // for example.
+      autoLink: true,
+      signInConfigs: [
+        // Add the sign in providers you would like to use
+        // Not all auth methods need sign in configs.
+        GoogleSignInConfig(
+            clientId:
+            "CLIENT-ID.apps.googleusercontent.com",
+            clientSecret: "CLIENT-SECRET",
+            redirectUrl: "https://YOURAPP.firebaseapp.com/__/auth/handler")
+      ],
+    
+      // This is called when the user is signed in, you can use this to 
+      // subscribe to user data or initialize stuff for that user
+      onBind: (s) async {
+        print("BOUND ${s}");
+      },
+    
+      // This is called when the user is signed out or before the next sign in
+      // you can use this to unsubscribe from user data or clean up stuff
+      onUnbind: () async {
+        print("UNBOUND");
+      },
+      
+      // Define the screen that will be shown when the user is not signed in
+      loginScreenBuilder: (context, buttons) => LoginScreen(
+        loginButtons: buttons,
+        header: Text("My Cool App").x9Large(),
+
+        // If you want to allow email/password sign in enable this
+        allowEmailPassword: true,
+
+        // Match this with your firebase password policy 
+        // Defaults to the default firebase password policy
+        passwordPolicy: ArcanePasswordPolicy(
+          maxPasswordLength: 4096,
+          minPasswordLength: 6,
+          requireLowercaseLetter: false,
+          requireNumericCharacter: false,
+          requireSpecialCharacter: false,
+          requireUppercaseLetter: false,
+        ),
       ),
     ),
     title: 'My App',

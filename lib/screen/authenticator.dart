@@ -5,24 +5,6 @@ import 'package:serviced/serviced.dart';
 Widget _defaultLoginBuilder(BuildContext context, List<AuthMethod> methods) =>
     LoginScreen(authMethods: methods);
 
-void _initArcaneAuth({
-  bool allowAnonymous = false,
-  Future<void> Function(UserMeta user)? onBind,
-  Future<void> Function()? onUnbind,
-  bool autoLink = true,
-  List<SocialSignInSiteConfig> signInConfigs = const [],
-}) {
-  services().register<AuthService>(
-      () => AuthService(
-            signInConfigs: signInConfigs,
-            onBind: onBind,
-            onUnbind: onUnbind,
-            allowAnonymous: allowAnonymous,
-            autoLink: autoLink,
-          ),
-      lazy: false);
-}
-
 class ArcaneAuthConfig {
   final bool allowAnonymous;
   final Future<void> Function(UserMeta user)? onBind;
