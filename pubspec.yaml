@@ -1,6 +1,6 @@
 name: arcane_auth
 description: "Authentication Service Provider & UI for Authentication in Arcane Style"
-version: 1.7.0+2
+version: 1.7.0+3
 repository: https://github.com/ArcaneArts/arcane_auth
 environment:
   sdk: ^3.5.2

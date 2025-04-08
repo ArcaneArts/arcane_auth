@@ -46,7 +46,7 @@ Currently only IOS and MacOS are easily supported for Apple Sign In which do not
 3. Set your app name and email.
 4. Specify your app's Client ID, Client Secret you just created in the project .
 
-### Aut Setup
+### Auth Setup
 
 First add arcane auth if you haven't `flutter pub add arcane_auth`
 
