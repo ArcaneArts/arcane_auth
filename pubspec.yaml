@@ -1,6 +1,6 @@
 name: arcane_auth
 description: "Authentication Service Provider & UI for Authentication in Arcane Style"
-version: 1.6.1
+version: 1.7.0
 repository: https://github.com/ArcaneArts/arcane_auth
 environment:
   sdk: ^3.5.2
@@ -8,27 +8,27 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  arcane: ">=5.0.0"
-  firebase_auth: ">=5.3.0"
-  common_svgs: ">=1.0.0"
-  crypto: ">=3.0.0"
-  desktop_webview_auth: ">=0.0.0"
-  desktop_webview_window: ">=0.2.0"
-  email_validator: ">=3.0.0"
-  fast_log: ">=1.0.0"
-  flutter_svg: ">=2.0.0"
-  google_sign_in: ">=6.2.0"
-  hive_flutter: ">=1.1.0"
-  http: ">=1.2.0"
-  plugin_platform_interface: ">=2.1.0"
-  rxdart: ">=0.28.0"
-  serviced: ">=1.0.0"
-  sign_in_with_apple: ">=6.1.0"
-  toxic: ">=1.3.0"
-  toxic_flutter: ">=1.1.0"
-  universal_io: ">=2.2.0"
-  webview_flutter: ">=4.10.0"
-  font_awesome_flutter: ">=10.8.0"
+  arcane: ">=5.1.0 <6.0.0"
+  firebase_auth: ">=5.3.0 <6.0.0"
+  common_svgs: ">=1.0.0 <2.0.0"
+  crypto: ">=3.0.0 <4.0.0"
+  desktop_webview_auth: ">=0.0.0 <1.0.0"
+  desktop_webview_window: ">=0.2.0 <1.0.0"
+  email_validator: ">=3.0.0 <4.0.0"
+  fast_log: ">=1.0.0 <2.0.0"
+  flutter_svg: ">=2.0.0 <3.0.0"
+  google_sign_in: ">=6.2.0 <7.0.0"
+  hive_flutter: ">=1.1.0 <2.0.0"
+  http: ">=1.2.0 <2.0.0"
+  plugin_platform_interface: ">=2.1.0 <3.0.0"
+  rxdart: ">=0.28.0 <1.0.0"
+  serviced: ">=1.0.0 <2.0.0"
+  sign_in_with_apple: ">=6.1.0 <8.0.0"
+  toxic: ">=1.3.0 <2.0.0"
+  toxic_flutter: ">=1.1.0 <2.0.0"
+  universal_io: ">=2.2.0 <3.0.0"
+  webview_flutter: ">=4.10.0 <5.0.0"
+  font_awesome_flutter: ">=10.8.0 <11.0.0"
 flutter:
   plugin:
     implements: arcane_auth
