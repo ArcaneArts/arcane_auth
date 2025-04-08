@@ -5,7 +5,6 @@ import 'package:arcane/arcane.dart';
 import 'package:arcane_auth/arcane_auth.dart';
 import 'package:fast_log/fast_log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart' as gsi;
 import 'package:hive_flutter/adapters.dart';
 import 'package:serviced/serviced.dart';
@@ -51,16 +50,8 @@ class AuthService extends StatelessService
       signInConfigs.any((e) => e is T);
 
   Future<void> _initBox() async {
-    if (!kIsWeb) {
-      try {
-        await Hive.initFlutter(FirebaseAuth.instance.app.options.apiKey);
-      } catch (e, es) {
-        _logError("Failed to initialize Hive: $e $es");
-      }
-    }
-
-    _dataBox = await Hive.openBox("arcane_auth_data");
-    _authBox = await Hive.openBox("arcane_auth_keys",
+    _dataBox = await Hive.openBox("${$appId}_auth_data");
+    _authBox = await Hive.openBox("${$appId}_auth_keys",
         encryptionCipher: HiveAesCipher(await _genBoxKey().toList()));
   }
 

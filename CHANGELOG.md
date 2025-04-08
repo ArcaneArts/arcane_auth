@@ -1,3 +1,6 @@
+# 1.7.1
+* Use Arcane Hive in Arcane 5.3
+
 # 1.7.0
 * Support Arcane 5.1
 * Support sign_in_with_apple 7
