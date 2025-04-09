@@ -1,3 +1,6 @@
+# 1.7.4
+* Just use sizedbox.shrink for loader
+
 # 1.7.3
 * Fix screen loader before theme init
 

@@ -62,12 +62,7 @@ class _ArcaneAuthInitializerState extends State<_ArcaneAuthInitializer> {
     assert(widget.config.authMethods.isNotEmpty,
         'No auth methods provided. Provide at least one auth method in AuthenticatedArcaneApp.autoConfig.authMethods');
 
-    return _work.build((_) => Builder(builder: widget.builder),
-        loading: ArcaneApp(
-            home: FillScreen(
-                child: Center(
-          child: CircularProgressIndicator(),
-        ))));
+    return _work.build((_) => Builder(builder: widget.builder));
   }
 }
 
