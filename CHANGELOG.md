@@ -1,3 +1,6 @@
+# 1.7.3
+* Fix screen loader before theme init
+
 # 1.7.2
 * Actually pass authconfig
 
