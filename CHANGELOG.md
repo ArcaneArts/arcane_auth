@@ -1,3 +1,6 @@
+# 1.7.2
+* Actually pass authconfig
+
 # 1.7.1
 * Use Arcane Hive in Arcane 5.3
 

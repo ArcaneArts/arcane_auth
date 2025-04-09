@@ -185,6 +185,7 @@ class AuthenticatedArcaneApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _ArcaneAuthInitializer(
+      config: authConfig,
       builder: (context) => Pylon<ArcaneAuthProvider>(
           value: svc<AuthService>(),
           builder: (context) => svc<AuthService>().stream.build(
