@@ -9,7 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   arcane: ">=5.3.1 <6.0.0"
-  firebase_auth: ">=5.3.0 <7.0.0"
+  firebase_auth: ">=6.0.0 <7.0.0"
   common_svgs: ">=1.0.0 <2.0.0"
   crypto: ">=3.0.0 <4.0.0"
   desktop_webview_auth: ">=0.0.0 <1.0.0"
