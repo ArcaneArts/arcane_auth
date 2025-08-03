@@ -366,7 +366,7 @@ extension XAuthCredentialBind on SocialSignInResultInterface {
         (FacebookSignInResult r) =>
           FacebookAuthProvider.credential(r.accessToken),
         (MicrosoftSignInResult r) =>
-          MicrosoftAuthProvider.credential(r.accessToken),
+          OAuthProvider('microsoft.com').credential(accessToken: r.accessToken),
         (GitHubSignInResult r) => GithubAuthProvider.credential(
             r.accessToken), // NEW: Convert GitHub token
         _ => throw UnimplementedError(

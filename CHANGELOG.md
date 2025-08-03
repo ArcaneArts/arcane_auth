@@ -1,3 +1,6 @@
+# 1.7.6
+* Fix msft provider
+
 # 1.7.5
 * Upgrade Firebase
 
