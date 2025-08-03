@@ -1,3 +1,6 @@
+# 1.7.5
+* Upgrade Firebase
+
 # 1.7.4
 * Just use sizedbox.shrink for loader
 
