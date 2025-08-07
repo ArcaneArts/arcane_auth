@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
       .map((i) => switch (i) {
             AuthMethod.google => GoogleSignInButton(),
             AuthMethod.apple => AppleSignInButton(),
-            AuthMethod.microsoft => AppleSignInButton(),
+            AuthMethod.microsoft => MicrosoftSignInButton(),
             AuthMethod.github => GithubSignInButton(),
             AuthMethod.facebook => FacebookSignInButton(),
             _ => null
