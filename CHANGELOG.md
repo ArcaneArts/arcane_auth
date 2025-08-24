@@ -1,3 +1,6 @@
+# 1.8.0
+* Upgrade to Arcane 6
+
 # 1.7.6
 * Fix msft provider
 

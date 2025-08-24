@@ -304,7 +304,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                   controller: emailController,
                                   autofillHints: [AutofillHints.email],
                                   placeholder: Text("Email"),
-                                  border: false,
+                                  border: Border(),
                                   leading: Icon(Icons.mail_outline_ionic),
                                   onChanged: (_) => setState(() {}),
                                   onSubmitted: (s) {
@@ -326,7 +326,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                           PasswordVisibility.disabled
                                       ? true
                                       : !revealingPassword,
-                                  border: false,
+                                  border: Border(),
                                   trailing: _buildPasswordTrailing(
                                     isRevealed: revealingPassword,
                                     onToggle: () => setState(() {
@@ -392,7 +392,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                   controller: emailController,
                                   autofillHints: [AutofillHints.email],
                                   placeholder: Text("Email"),
-                                  border: false,
+                                  border: Border(),
                                   onChanged: (_) => setState(() {}),
                                   leading: Icon(Icons.mail_outline_ionic),
                                   onSubmitted: (s) {
@@ -414,7 +414,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                           PasswordVisibility.disabled
                                       ? true
                                       : !revealingPassword,
-                                  border: false,
+                                  border: Border(),
                                   trailing: _buildPasswordTrailing(
                                     isRevealed: revealingPassword,
                                     onToggle: () => setState(() {
@@ -444,7 +444,7 @@ class _ArcaneEmailPasswordCardState extends State<ArcaneEmailPasswordCard> {
                                           PasswordVisibility.disabled
                                       ? true
                                       : !revealingPasswordConfirm,
-                                  border: false,
+                                  border: Border(),
                                   trailing: _buildPasswordTrailing(
                                     isRevealed: revealingPasswordConfirm,
                                     onToggle: () => setState(() {
